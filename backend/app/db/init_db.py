@@ -27,6 +27,50 @@ def init_db(db: Session) -> None:
 
     ######### Cargar data inicial ###########
 
+
+    # Health insurance
+    insu1 = models.HealthInsurance(
+        name="Osde", telephone="02214662322", email="osdelp@osde.com.ar")
+    db.add(insu1)
+    insu2 = models.HealthInsurance(
+        name="IOMA", telephone="02214663325", email="ioma@gob.ar")
+    db.add(insu2)
+    db.commit()
+    db.refresh(insu1)
+    db.refresh(insu2)
+
+
+
+    # usuarios del sistema
+
+    users = [
+
+        models.Config(username="configurador",
+                      first_name="configurador", last_name="configurador",
+                      hashed_password=get_password_hash("changeme")),
+        models.ReportingPhysician(
+            username="informante", first_name="informante", last_name="informante", license=1288902,
+            hashed_password=get_password_hash("changeme")),
+        models.ReferringPhysician(first_name="derivante", last_name="derivante",
+                                  license=12884629, phone="334892", email="fran.herrera124@gmail.com"),
+        models.Patient(username="paciente", dni=26053114, email="fran.herrera124@gmail.com.ar",
+                       birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Juan",
+                       last_name="Perez", hashed_password=get_password_hash("changeme")),
+        models.Patient(username="carlaconte", dni=26053117, email="carlaconte@gmail.com.ar",
+                       birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Carla",
+                       last_name="Conte", hashed_password=get_password_hash("changeme")),
+        models.Patient(username="conemail", dni=26053115, email="mjdelafuente@gmail.com",
+                       birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Mario",
+                       last_name="Azul", hashed_password=get_password_hash("changeme")),
+        models.Patient(username="salfuen", dni=26053111, email="salfuen@gmail.com.ar",
+                       birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Silvia",
+                       last_name="Perez", hashed_password=get_password_hash("changeme")),
+        models.Employee(username="empleado", first_name="Miguel", last_name="de la Fuente",
+                        hashed_password=get_password_hash("changeme"))
+    ]
+
+    db.bulk_save_objects(users)
+
     # Diagnósticos presuntivos
 
     diagnosis = [
@@ -408,51 +452,5 @@ def init_db(db: Session) -> None:
     db.add(models.TypeStudy(
         name="Array CGH",
         study_consent_template=array))
-
-    # Health insurance
-    insu1 = models.HealthInsurance(
-        name="Osde", telephone="02214662322", email="osdelp@osde.com.ar")
-    db.add(insu1)
-    insu2 = models.HealthInsurance(
-        name="IOMA", telephone="02214663325", email="ioma@gob.ar")
-    db.add(insu2)
-    db.commit()
-    db.refresh(insu1)
-    db.refresh(insu2)
-
-    # Patient
-    db.add(models.Patient(username="jperez", dni=26053114, email="jperez@gmail.com.ar",
-                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Juan",
-                          last_name="Perez", hashed_password=get_password_hash("123456")
-                          ))
-    
-    # Patient
-    db.add(models.Patient(username="carlaconte", dni=26053117, email="carlaconte@gmail.com.ar",
-                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Carla",
-                          last_name="Conte", hashed_password=get_password_hash("123456")
-                          ))
-    
-    # Patient
-    db.add(models.Patient(username="conemail", dni=26053115, email="mjdelafuente@gmail.com",
-                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Mario",
-                          last_name="Azul", hashed_password=get_password_hash("123456")
-                          ))
-    
-    # Patient
-    db.add(models.Patient(username="salfuen", dni=26053111, email="salfuen@gmail.com.ar",
-                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Silvia",
-                          last_name="Perez", hashed_password=get_password_hash("123456")
-                          ))
-
-    
-    # Referring Physician
-    db.add(models.ReferringPhysician(email="frank@gmail.com", first_name="Francisco", last_name="Herrera",
-                                     phone="02214662322", license=125275)
-           )
-    
-    # Employee
-    db.add(models.Employee(username="mdelafuente", first_name="Miguel", last_name="de la Fuente",
-                           hashed_password=get_password_hash("chicha")
-                           ))
 
     db.commit()

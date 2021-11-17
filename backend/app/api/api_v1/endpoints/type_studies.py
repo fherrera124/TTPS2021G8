@@ -90,7 +90,7 @@ def update_type_study_template(
             detail="No existe en el sistema el tipo de estudio con la id ingresada.",
         )
     type_study = crud.type_study.update_template(
-        db=db, db_obj=type_study, template=type_study_template)
+        db=db, db_obj=type_study, template=template)
     return type_study
 
 

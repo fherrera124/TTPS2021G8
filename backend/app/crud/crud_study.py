@@ -52,6 +52,13 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
             .all()
         )
 
+    def mark_delayed(self, db: Session, db_obj: Study) -> Study:
+        db_obj.delayed = True
+        db.add(db_obj)
+        db.commit()
+        db.refresh(db_obj)
+        return db_obj
+
     def update_state(self, db: Session, db_obj: Study, new_state: str,
                      employee_id: int, entry_date: Optional[datetime] = None) -> Study:
         if entry_date is None:

@@ -48,7 +48,13 @@ for study in studies:
                             new_state=StudyState.STATE_THREE)
 
 
-# Tambien buscar estudios con muestra retrasados (90 dias)
+# Marcar estudios con muestra retrasadas (90 dias)
 
-filter = datetime.today() - timedelta(days=90)
+filter_before = datetime.today() - timedelta(days=90)
 
+studies = db.query(models.Study).join(models.Sample).filter(
+    and_(models.Study.current_state == StudyState.STATE_FIVE,
+         models.Sample.created_date <= filter_before)).all()
+
+for study in studies:
+    crud.study.mark_delayed(db=db, db_obj=study)
