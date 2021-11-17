@@ -382,33 +382,32 @@ def init_db(db: Session) -> None:
 
     # Tipos de estudio
 
+    with open('/app/templates/study_types/exoma.html', 'r') as file:
+        exoma = file.read().replace('\n', '')
+    with open('/app/templates/study_types/genoma.html', 'r') as file:
+        genoma = file.read().replace('\n', '')
+    with open('/app/templates/study_types/carrier.html', 'r') as file:
+        carrier = file.read().replace('\n', '')
+    with open('/app/templates/study_types/cariotipo.html', 'r') as file:
+        cariotipo = file.read().replace('\n', '')
+    with open('/app/templates/study_types/array.html', 'r') as file:
+        array = file.read().replace('\n', '')
+
     db.add(models.TypeStudy(
         name="Exoma",
-        study_consent_template="<h3>Consentimiento informado</h3>"
-        "<h5>Titulo del estudio</h5>"
-        "<p>Estudio sobre el exoma...<p>"
-        "<h5>Objetivo del estudio</h5>"
-        "<p>En caracter de ... </p>"
-        "<h5>Riesgos</h5>"
-        "<p>Según a lo referido a las últimas investigaciones, se "
-        "ha comprobado que...</p>"
-        "<h2>AUTORIZACIÓN<h2>"
-        "<p> En caracter de ... </p>"))
+        study_consent_template=exoma))
     db.add(models.TypeStudy(
         name="Genoma mitoclondria completo",
-        study_consent_template="<h3>Consentimiento informado</h3>"
-        "<h5>Titulo del estudio</h5>"
-        "<p>Estudio sobre Genoma mitoclondria completo...<p>"
-        "<h5>Objetivo del estudio</h5>"
-        "<p>En caracter de ... </p>"
-        "<h5>Riesgos</h5>"
-        "<p > En caracter de ... </p>"
-        "<h2>AUTORIZACIÓN<h2>"
-        "<p > En caracter de ... </p>"))
+        study_consent_template=genoma))
     db.add(models.TypeStudy(
-        name="Carrier de enfermedades monogénicas recesivas", study_consent_template="wcwc"))
-    db.add(models.TypeStudy(name="Cariotipo", study_consent_template="wcwvc"))
-    db.add(models.TypeStudy(name="Array CGH", study_consent_template="wvewev"))
+        name="Carrier",
+        study_consent_template=carrier))
+    db.add(models.TypeStudy(
+        name="Cariotipo",
+        study_consent_template=cariotipo))
+    db.add(models.TypeStudy(
+        name="Array CGH",
+        study_consent_template=array))
 
     # Health insurance
     insu1 = models.HealthInsurance(
@@ -426,12 +425,12 @@ def init_db(db: Session) -> None:
                           birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Juan",
                           last_name="Perez", hashed_password=get_password_hash("123456")
                           ))
-    
+
     # Referring Physician
     db.add(models.ReferringPhysician(email="frank@gmail.com", first_name="Francisco", last_name="Herrera",
                                      phone="02214662322", license=125275)
            )
-    
+
     # Employee
     db.add(models.Employee(username="mdelafuente", first_name="Miguel", last_name="de la Fuente",
                            hashed_password=get_password_hash("chicha")
