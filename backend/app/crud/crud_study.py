@@ -66,7 +66,8 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db_obj.current_state = new_state
         db_obj.updated_date = date_time
         db_obj.current_state_entered_date = date_time
-        SampleBatch.new_if_qualifies(new_state=new_state, db=db)
+        db.add(db_obj)
+        SampleBatch.new_if_qualifies(db_obj=db_obj, db=db)
         db.commit()
         db.refresh(db_obj)
         return db_obj

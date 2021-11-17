@@ -425,12 +425,31 @@ def init_db(db: Session) -> None:
                           birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Juan",
                           last_name="Perez", hashed_password=get_password_hash("123456")
                           ))
+    
+    # Patient
+    db.add(models.Patient(username="carlaconte", dni=26053117, email="carlaconte@gmail.com.ar",
+                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Carla",
+                          last_name="Conte", hashed_password=get_password_hash("123456")
+                          ))
+    
+    # Patient
+    db.add(models.Patient(username="conemail", dni=26053115, email="mjdelafuente@gmail.com",
+                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Mario",
+                          last_name="Azul", hashed_password=get_password_hash("123456")
+                          ))
+    
+    # Patient
+    db.add(models.Patient(username="salfuen", dni=26053111, email="salfuen@gmail.com.ar",
+                          birth_date="02-01-1975", health_insurance_id=insu1.id, first_name="Silvia",
+                          last_name="Perez", hashed_password=get_password_hash("123456")
+                          ))
 
+    
     # Referring Physician
     db.add(models.ReferringPhysician(email="frank@gmail.com", first_name="Francisco", last_name="Herrera",
                                      phone="02214662322", license=125275)
            )
-
+    
     # Employee
     db.add(models.Employee(username="mdelafuente", first_name="Miguel", last_name="de la Fuente",
                            hashed_password=get_password_hash("chicha")

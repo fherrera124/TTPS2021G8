@@ -36,6 +36,19 @@ for study in studies:
                             new_state=StudyState.STATE_ONE_ERROR)
 
 
-# TODO: Cancelar turnos de estudios que pasaron 30 días del turno asignado
+# Cancelar turnos de estudios que pasaron 30 días del turno asignado
 
-# Tambien buscar estudios con muestra retrasados (60 dias)
+studies = db.query(models.Study).join(models.Appointment).filter(
+    and_(models.Study.current_state == StudyState.STATE_FOUR,
+         models.Appointment.date_appointment <= filter_before)).all()
+
+for study in studies:
+    crud.appointment.remove(db=db, id=study.appointment.id)
+    crud.study.update_state(db=db, db_obj=study,
+                            new_state=StudyState.STATE_THREE)
+
+
+# Tambien buscar estudios con muestra retrasados (90 dias)
+
+filter = datetime.today() - timedelta(days=90)
+

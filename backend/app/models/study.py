@@ -72,3 +72,5 @@ class Study(Base):
 
     appointment = relationship(
         "Appointment", primaryjoin="Study.id == Appointment.study_id", back_populates="study", uselist=False)
+    
+    delayed = Column(Boolean, default=False)

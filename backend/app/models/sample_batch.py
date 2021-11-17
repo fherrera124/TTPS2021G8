@@ -12,7 +12,8 @@ class SampleBatch(Base):
     BATCH_SIZE: Final = 10
     id = Column(Integer, primary_key=True, index=True)
     created_date = Column(DateTime(timezone=True), server_default=func.now())
-    updated_date = Column(DateTime(timezone=True), onupdate=func.now()) # TODO: evaluar si deprecated
+    # TODO: evaluar si deprecated
+    updated_date = Column(DateTime(timezone=True), onupdate=func.now())
     current_state = Column(String, default=SampleBatchState.STATE_ONE)
     current_state_entered_date = Column(DateTime(timezone=True))
     url = Column(String)
@@ -21,14 +22,15 @@ class SampleBatch(Base):
         back_populates="sample_batch")
 
     @classmethod
-    def new_if_qualifies(cls, new_state: str, db: Session):
-        if new_state == StudyState.STATE_SIX:
+    def new_if_qualifies(cls, db_obj: Study, db: Session):
+        if db_obj.current_state == StudyState.STATE_SIX:
             samples = db.query(Sample).join(Study).filter(
-                Study.current_state == new_state
+                Study.current_state == StudyState.STATE_SIX
             ).all()
-            if len(samples) == cls.BATCH_SIZE:
+            if len(samples) == cls.BATCH_SIZE -1:
                 batch = cls()
                 db.add(batch)
+                samples.append(db_obj.sample)
                 for sample in samples:
                     sample.sample_batch = batch
                     sample.study.current_state = StudyState.STATE_SEVEN
