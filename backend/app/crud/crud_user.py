@@ -84,13 +84,13 @@ class CRUDUser(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
         return user.type == Role.ADMIN["name"]
 
     def is_employee(self, user: User) -> bool:
-        return user.type == Role.ADMIN["name"]
+        return user.type == Role.EMPLOYEE["name"]
     
     def is_patient(self, user: User) -> bool:
         return user.type == Role.PATIENT["name"]
     
     def is_configurator(self, user: User) -> bool:
-        return user.type == Role.ADMIN["name"]
+        return user.type == Role.CONFIGURATOR["name"]
 
     def is_reporting_physician(self, user: User) -> bool:
         return user.type == Role.REPORTING_PHYSICIAN["name"]

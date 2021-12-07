@@ -53,3 +53,5 @@ def appointments(
             continue  # only executed if the inner loop did NOT break
         break  # only executed if the inner loop DID break
     return schedule_list
+
+#TODO: un endpoint que sea turnos cancelados

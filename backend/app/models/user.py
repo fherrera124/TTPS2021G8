@@ -90,7 +90,7 @@ class Patient(User):
     email = Column(String, unique=True, index=True, nullable=True)  # *
     dni = Column(Integer, unique=True, nullable=True)  # *
     birth_date = Column(Date(), nullable=True)  # *
-    health_insurance_number = Column(Integer)
+    health_insurance_number = Column(String)
     health_insurance_id = Column(Integer, ForeignKey("healthinsurance.id"))
     health_insurance = relationship(
         "HealthInsurance", back_populates="affiliates")

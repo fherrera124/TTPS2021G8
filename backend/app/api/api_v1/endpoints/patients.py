@@ -129,7 +129,7 @@ def read_patient_by_id(
             status_code=404,
             detail="El paciente con el id ingresado no existe en el sistema",
         )
-    if crud.user.is_admin(current_user):
+    if crud.user.is_employee(current_user):
         return patient
     if patient != current_user:
         raise HTTPException(

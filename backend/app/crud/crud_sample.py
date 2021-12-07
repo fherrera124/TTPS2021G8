@@ -33,12 +33,10 @@ class CRUDSample(CRUDBase[Sample, SampleCreate, SampleUpdate]):
         return db_obj
 
     def mark_as_paid(
-            self, db: Session, db_obj: Sample, url: str) -> Optional[Sample]:
+            self, db: Session, db_obj: Sample) -> Optional[Sample]:
         if db_obj.paid is not None and db_obj.paid is True:
             raise SampleAlreadyPaid()
-        db_obj.current_state = SampleBatchState.STATE_TWO
-        db_obj.url = url
-        db_obj.current_state_entered_date = func.now()
+        db_obj.paid = True
         db.commit()
         db.refresh(db_obj)
         return db_obj

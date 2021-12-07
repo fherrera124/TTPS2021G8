@@ -7,6 +7,7 @@ from .crud_type_study import type_study
 from .crud_sample import sample
 from .crud_sample_batch import sample_batch
 from .crud_appointment import appointment
+from .crud_health_insurance import health_insurance
 from .exceptions import *
 
 

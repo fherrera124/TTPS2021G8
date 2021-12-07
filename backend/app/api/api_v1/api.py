@@ -23,3 +23,4 @@ api_router.include_router(presumptive_diagnoses.router, prefix="/presumptive_dia
 api_router.include_router(samples.router, prefix="/samples", tags=["Samples"])
 api_router.include_router(sample_batches.router, prefix="/sample_batches", tags=["Sample Batches"])
 api_router.include_router(appointments.router, prefix="/appointments", tags=["Appointments"])
+api_router.include_router(health_insurances.router, prefix="/health_insurances", tags=["Health Insurances"])

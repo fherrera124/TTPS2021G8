@@ -83,9 +83,8 @@ def read_sample(
     return sample
 
 
-@router.post("/mark-samples-as-paid")
+@router.post("/mark-as-processed")
 def mark_samples_as_paid(
-    id: int,
     samples: List[int],
     current_user: models.User = Security(
         deps.get_current_active_user,
@@ -97,7 +96,7 @@ def mark_samples_as_paid(
         sample = retrieve_sample(db=db, id=sample_id)
         try:
             sample = crud.sample.mark_as_paid(
-                db=db, db_obj=sample, url=url)
+                db=db, db_obj=sample)
         except SampleAlreadyPaid:
             raise HTTPException(
                 status_code=400, detail="La muestra con id: {} ya fue pagada.".format(sample_id)
