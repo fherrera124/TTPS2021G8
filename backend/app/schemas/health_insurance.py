@@ -1,5 +1,9 @@
 from typing import List, Optional
+<<<<<<< HEAD
 from app.schemas import Patient
+=======
+from app.schemas.user import User #TODO: que sea paciente
+>>>>>>> f6df114451f33d105fe9eb5fae6d04d25901e3c3
 from pydantic import BaseModel
 
 
@@ -23,7 +27,11 @@ class HealthInsuranceUpdate(HealthInsuranceBase):
 # Properties shared by models stored in DB
 class HealthInsuranceInDBBase(HealthInsuranceBase):
     id: int
+<<<<<<< HEAD
     affiliates: List[Patient] = []
+=======
+    affiliates: List[User] = []
+>>>>>>> f6df114451f33d105fe9eb5fae6d04d25901e3c3
 
     class Config:
         orm_mode = True
