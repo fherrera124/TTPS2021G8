@@ -4,18 +4,18 @@ services:
   backend:
     volumes:
       - ./.env:/.env
-      - ./backend/startup.sh:/startup.sh
-      - ./backend/app:/app
-      - ./backend/alembic:/alembic
-      - ./backend/poetry.lock:/poetry.lock
-      - ./backend/pyproject.toml:/pyproject.toml
+      - ./startup.sh:/startup.sh
+      - ./app:/app
+      - ./alembic:/alembic
+      - ./poetry.lock:/poetry.lock
+      - ./pyproject.toml:/pyproject.toml
     build:
-      context: ./backend
+      context: ./
       dockerfile: backend.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
     command: bash -c "while true; do sleep 1; done"  # Infinite loop to keep container live doing nothing
   cron:
     volumes:
-      - ./backend/app:/app
-      - ./backend/app/tasks.py:/app/tasks.py:ro
+      - ./app:/app
+      - ./app/tasks.py:/app/tasks.py:ro

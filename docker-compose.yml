@@ -28,18 +28,6 @@ services:
       - db
     restart: unless-stopped
 
-  # frontend:
-  #   container_name: angular_frontend
-  #   ports:
-  #     - "4200:4200"
-  #   build:
-  #     context: ./frontend
-  #     dockerfile: frontend.dockerfile
-  #   volumes:
-  #      - ./frontend:/usr/src/app
-  #      - ./frontend/node_modules:/usr/src/app/node_modules
-  #   restart: unless-stopped
-
   backend:
     container_name: fastapi_backend
     ports:
@@ -53,8 +41,8 @@ services:
       # Allow explicit env var override for tests
       #- SMTP_HOST=${SMTP_HOST}
     build:
-      context: ./backend
-      dockerfile: backend.dockerfile
+      context: ./
+      dockerfile: fastapi.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
 
@@ -67,7 +55,7 @@ services:
     volumes:
       - ./.env:/.env:ro
     build:
-      context: ./backend
+      context: ./
       dockerfile: cron.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-false}
