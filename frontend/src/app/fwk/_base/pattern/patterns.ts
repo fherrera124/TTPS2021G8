@@ -1,1 +1,0 @@
-export const password_pattern = '(012|123|234|345|456|567|678|789)';

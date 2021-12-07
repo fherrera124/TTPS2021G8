@@ -1,14 +1,8 @@
-<<<<<<< HEAD
 from typing import Optional, TYPE_CHECKING
 from sqlalchemy import (
     Boolean, Column, Integer, String,
     Text, DateTime, Float, ForeignKey
 )
-=======
-from typing import TYPE_CHECKING
-from sqlalchemy import Boolean, Column, Integer, String, Text, Date
-
->>>>>>> f6df114451f33d105fe9eb5fae6d04d25901e3c3
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base_class import Base
@@ -25,11 +19,8 @@ class TypeStudy(Base):
         "Study", primaryjoin="TypeStudy.id == Study.type_study_id", back_populates="type_study")
 
 
-from .user import InformantDoctor, Patient
-
 class Study(Base):
     id = Column(Integer, primary_key=True, index=True)
-<<<<<<< HEAD
 
     created_date = Column(DateTime(timezone=True), server_default=func.now())
     updated_date = Column(DateTime(timezone=True), onupdate=func.now())
@@ -83,13 +74,3 @@ class Study(Base):
         "Appointment", primaryjoin="Study.id == Appointment.study_id", back_populates="study", uselist=False)
     
     delayed = Column(Boolean, default=False)
-=======
-    result = Column(Boolean(), default=True) #dudaa, capaz string
-    date_report = Column(Date())
-    informant_doctor_id = Column(Integer, ForeignKey(InformantDoctor.id))
-    informant_doctor = relationship(InformantDoctor, back_populates="studies_informed")
-    patient_id = Column(Integer, ForeignKey(Patient.id))
-    patient = relationship(Patient, back_populates="studies")
-    report = Column(Text)
-    status = Column(String(20))
->>>>>>> f6df114451f33d105fe9eb5fae6d04d25901e3c3
