@@ -1,9 +1,9 @@
 from typing import List, Optional
-from sqlalchemy.sql import func
+from sqlalchemy.sql import func, extract
 from fastapi.encoders import jsonable_encoder
 from sqlalchemy.orm import Session
 from app.crud.base import CRUDBase
-from app.models import Study, SampleBatch, StudyStates
+from app.models import Study, TypeStudy, SampleBatch, StudyStates
 from app.schemas import StudyCreate, StudyUpdate
 from app.constants.state import StudyState
 from datetime import datetime
@@ -42,7 +42,8 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
             offset(skip).limit(limit).all()
 
     def get_multi_by_owner(
-        self, db: Session, *, employee_id: int, skip: int = 0, limit: int = 100
+        self, db: Session, *, employee_id: int,
+        skip: int = 0, limit: int = 100
     ) -> List[Study]:
         return (
             db.query(Study)
@@ -51,6 +52,18 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
             .limit(limit)
             .all()
         )
+
+    def get_month_amount(
+        self, db: Session,
+        month: int
+    ) -> int:
+        return db.query(Study).filter(extract('month', Study.created_date) == month).count()
+
+    def get_type_amount(
+        self, db: Session,
+        type: str
+    ) -> int:
+        return db.query(Study).join(TypeStudy).filter(TypeStudy.name == type).count()
 
     def mark_delayed(self, db: Session, db_obj: Study) -> Study:
         db_obj.delayed = True
