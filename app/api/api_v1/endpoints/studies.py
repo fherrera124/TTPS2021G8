@@ -39,6 +39,36 @@ def read_studies(
     return studies
 
 
+@router.get("/month-amount", response_model=int)
+def month_amount(
+    month: int,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]],
+    )
+) -> int:
+    """
+    Retrieve amount of studies of a given month.
+    """
+    return crud.study.get_month_amount(db, month=month)
+
+
+@router.get("/type-amount", response_model=int)
+def type_amount(
+    type: str,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]],
+    )
+) -> int:
+    """
+    Retrieve amount of studies of a given type.
+    """
+    return crud.study.get_type_amount(db, type=type)
+
+
 @router.get("/delayed", response_model=List[schemas.Study])
 def read_delayed_studies(
     db: Session = Depends(deps.get_db),

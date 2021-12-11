@@ -23,7 +23,7 @@ def init_list(date: date) -> List[schemas.Appointment]:
     return l
 
 
-@ router.post("/", response_model=List[schemas.AppointmentSimplified])
+@router.post("/", response_model=List[schemas.AppointmentSimplified])
 def appointments(
     date: date = Body(...),
     db: Session = Depends(deps.get_db),
