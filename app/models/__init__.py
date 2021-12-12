@@ -7,3 +7,4 @@ from .study_updates import StudyStates, Report
 from .health_insurance import HealthInsurance
 from .referring_physician import ReferringPhysician
 from .appointment import Appointment
+from .configuration import Configuration

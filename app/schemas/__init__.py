@@ -18,3 +18,4 @@ from .referring_physician import ReferringPhysician, ReferringPhysicianCreate, R
 from .sample import Sample, SampleCreate, SampleUpdate
 from .appointment import Appointment, AppointmentCreate, AppointmentUpdate, AppointmentSimplified
 from .sample_batch import SampleBatch, SampleBatchCreate, SampleBatchUpdate
+from .configuration import Configuration, ConfigurationCreate, ConfigurationUpdate
