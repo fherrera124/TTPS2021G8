@@ -36,7 +36,7 @@ def read_patients(
 
 
 @router.post("/", response_model=schemas.Patient)
-def create_patient(
+async def create_patient(
     *,
     db: Session = Depends(deps.get_db),
     patient_in: schemas.PatientCreate,
@@ -65,10 +65,12 @@ def create_patient(
             status_code=400,
             detail="El dni ingresado ya se encuentra registrado",
         )
-    if settings.EMAILS_ENABLED and patient_in.email:
-        send_new_account_email(
-            email_to=patient_in.email, username=patient_in.username, password=patient_in.password
-        )
+    #if settings.EMAILS_ENABLED and patient_in.email: FIXME (no me toma el EMAILS_ENABLED=True en .env)
+    print(settings.EMAILS_ENABLED)
+    print(patient_in.email)
+    await send_new_account_email(
+        email_to=patient_in.email, username=patient_in.username, password=patient_in.password
+    )
     return patient
 
 
@@ -136,8 +138,6 @@ def read_patient_by_id(
             status_code=401, detail="Usted no tiene los permisos suficientes"
         )
     return patient
-
-
 
 
 @router.put("/{patient_id}", response_model=schemas.Patient)
