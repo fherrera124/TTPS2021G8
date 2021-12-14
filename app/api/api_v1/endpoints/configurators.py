@@ -130,3 +130,24 @@ def update_configuration(
             detail="No se encontró una configuración establecida.",
         )
     return crud.config.update(db, db_obj=configuration, obj_in=configurator_in)
+
+
+@router.get("/get-configuration", response_model=schemas.Configuration)
+def get_configuration(
+    *,
+    db: Session = Depends(deps.get_db),
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]],
+    ),
+) -> Any:
+    """
+    Get configuration.
+    """
+    configuration = crud.config.get_config(db)
+    if not configuration:
+        raise HTTPException(
+            status_code=404,
+            detail="No se encontró una configuración establecida.",
+        )
+    return configuration
