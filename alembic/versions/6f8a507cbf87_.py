@@ -1,8 +1,8 @@
 """empty message
 
-Revision ID: b3c140004de1
+Revision ID: 6f8a507cbf87
 Revises: 
-Create Date: 2021-11-14 03:12:08.870856
+Create Date: 2021-12-13 21:09:05.336572
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = 'b3c140004de1'
+revision = '6f8a507cbf87'
 down_revision = None
 branch_labels = None
 depends_on = None
@@ -79,9 +79,10 @@ def upgrade():
     sa.Column('email', sa.String(), nullable=True),
     sa.Column('dni', sa.Integer(), nullable=True),
     sa.Column('birth_date', sa.Date(), nullable=True),
-    sa.Column('health_insurance_number', sa.Integer(), nullable=True),
+    sa.Column('health_insurance_number', sa.String(), nullable=True),
     sa.Column('health_insurance_id', sa.Integer(), nullable=True),
     sa.Column('clinical_history', sa.Text(), nullable=True),
+    sa.Column('force_password_change', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['health_insurance_id'], ['healthinsurance.id'], ),
     sa.PrimaryKeyConstraint('id'),
     sa.UniqueConstraint('dni'),
@@ -100,10 +101,11 @@ def upgrade():
     sa.Column('type_study_id', sa.Integer(), nullable=True),
     sa.Column('presumptive_diagnosis_id', sa.Integer(), nullable=True),
     sa.Column('budget', sa.Float(), nullable=True),
-    sa.Column('current_state', sa.String(), nullable=False),
+    sa.Column('current_state', sa.String(), nullable=True),
     sa.Column('current_state_entered_date', sa.DateTime(timezone=True), nullable=True),
     sa.Column('payment_receipt', sa.String(), nullable=True),
     sa.Column('signed_consent', sa.String(), nullable=True),
+    sa.Column('delayed', sa.Boolean(), nullable=True),
     sa.ForeignKeyConstraint(['employee_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['patient_id'], ['user.id'], ),
     sa.ForeignKeyConstraint(['presumptive_diagnosis_id'], ['diagnosis.id'], ),
