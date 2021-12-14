@@ -2,12 +2,12 @@ import logging
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, Optional
-
 import emails
 from emails.template import JinjaTemplate
 from jose import jwt
-
 from app.core.config import settings
+from app.core.mail import conf
+from fastapi_mail import FastMail, MessageSchema
 
 
 def send_email(
@@ -67,24 +67,34 @@ def send_reset_password_email(email_to: str, email: str, token: str) -> None:
     )
 
 
-def send_new_account_email(email_to: str, username: str, password: str) -> None:
+async def send_new_account_email(email_to: str, username: str, password: str) -> None:
     project_name = settings.PROJECT_NAME
-    subject = f"{project_name} - New account for user {username}"
-    with open(Path(settings.EMAIL_TEMPLATES_DIR) / "new_account.html") as f:
-        template_str = f.read()
-    link = settings.SERVER_HOST
-    send_email(
-        email_to=email_to,
-        subject_template=subject,
-        html_template=template_str,
-        environment={
-            "project_name": settings.PROJECT_NAME,
-            "username": username,
-            "password": password,
-            "email": email_to,
-            "link": link,
-        },
+    subject = f"{project_name} - Nueva cuenta para usuario {username}"
+    #with open(Path(settings.EMAIL_TEMPLATES_DIR) / "new_account.html") as f:
+    #    template_str = f.read()
+    #link = settings.SERVER_HOST
+    #send_email(
+    #    email_to=email_to,
+    #    subject_template=subject,
+    #    html_template=template_str,
+    #    environment={
+    #        "project_name": settings.PROJECT_NAME,
+    #        "username": username,
+    #        "password": password,
+    #        "email": email_to,
+    #        "link": link,
+    #    },
+    #)
+
+    message = MessageSchema(
+        subject=subject,
+        recipients=[email_to],
+        body="Bienvenido, sus credenciales de acceso son:\n\n"
+            f"-usuario: {username}\n-contraseña: {password}"
     )
+    fm = FastMail(conf)
+    await fm.send_message(message)
+
 
 
 def generate_password_reset_token(email: str) -> str:
