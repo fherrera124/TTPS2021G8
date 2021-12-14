@@ -14,6 +14,8 @@ from weasyprint import HTML
 from fastapi.responses import Response
 from fastapi_mail import FastMail, MessageSchema
 from io import BytesIO
+import calendar
+
 
 router = APIRouter()
 
@@ -39,34 +41,42 @@ def read_studies(
     return studies
 
 
-@router.get("/month-amount", response_model=int)
-def month_amount(
-    month: int,
+@router.get("/months-amount", response_model=List[schemas.MonthAmount])
+def months_amount(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Security(
         deps.get_current_active_user,
         scopes=[Role.EMPLOYEE["name"]],
     )
-) -> int:
+) -> Any:
     """
-    Retrieve amount of studies of a given month.
+    Retrieve amount of studies started in each month.
     """
-    return crud.study.get_month_amount(db, month=month)
+    months = calendar.month_name[1:]
+    l = []
+    for index, month in enumerate(months, start=1):
+        am = crud.study.get_month_amount(db, month=index)
+        l.append({"month": month, "amount": am})
+    return l
 
 
-@router.get("/type-amount", response_model=int)
-def type_amount(
-    type: str,
+@router.get("/types-amount", response_model=List[schemas.TypeAmount])
+def types_amount(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Security(
         deps.get_current_active_user,
         scopes=[Role.EMPLOYEE["name"]],
     )
-) -> int:
+) -> Any:
     """
-    Retrieve amount of studies of a given type.
+    Retrieve amount of studies of each type.
     """
-    return crud.study.get_type_amount(db, type=type)
+    type_studies = ['Exoma', 'Genoma', 'Carrier', 'Cariotipo', 'Array CGH']
+    l = []
+    for index, study_type in enumerate(type_studies, start=1):
+        am = crud.study.get_type_amount(db, study_type=study_type)
+        l.append({"study_type": study_type, "amount": am})
+    return l
 
 
 @router.get("/delayed", response_model=List[schemas.Study])

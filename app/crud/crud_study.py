@@ -61,9 +61,9 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
 
     def get_type_amount(
         self, db: Session,
-        type: str
+        study_type: str
     ) -> int:
-        return db.query(Study).join(TypeStudy).filter(TypeStudy.name == type).count()
+        return db.query(Study).join(TypeStudy).filter(TypeStudy.name == study_type).count()
 
     def mark_delayed(self, db: Session, db_obj: Study) -> Study:
         db_obj.delayed = True
