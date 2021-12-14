@@ -87,6 +87,7 @@ class Patient(User):
     # el NOT NULL constraint en los campos
 
     __tablename__ = None
+    force_password_change = Column(Boolean(), default=True)
     email = Column(String, unique=True, index=True, nullable=True)  # *
     dni = Column(Integer, unique=True, nullable=True)  # *
     birth_date = Column(Date(), nullable=True)  # *

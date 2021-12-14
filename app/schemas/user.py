@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     username: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
+    force_password_change: Optional[bool] = False
 
 
 class AdminBase(UserBase):
