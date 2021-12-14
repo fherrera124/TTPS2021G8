@@ -73,7 +73,7 @@ def types_amount(
     """
     type_studies = ['Exoma', 'Genoma', 'Carrier', 'Cariotipo', 'Array CGH']
     l = []
-    for index, study_type in enumerate(type_studies, start=1):
+    for study_type in type_studies:
         am = crud.study.get_type_amount(db, study_type=study_type)
         l.append({"study_type": study_type, "amount": am})
     return l
