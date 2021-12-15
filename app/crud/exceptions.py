@@ -21,6 +21,9 @@ class DniAlreadyRegistered(FastAPIUsersException):
 class LicenseAlreadyRegistered(FastAPIUsersException):
     pass
 
+class TutorDataMissing(FastAPIUsersException):
+    pass
+
 
 class UserNotExists(FastAPIUsersException):
     pass

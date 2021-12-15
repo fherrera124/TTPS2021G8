@@ -87,9 +87,14 @@ class Patient(User):
     # el NOT NULL constraint en los campos
 
     __tablename__ = None
+    force_password_change = Column(Boolean(), default=True)
     email = Column(String, unique=True, index=True, nullable=True)  # *
+    phone_number = Column(String, nullable=True)  # *
+    address = Column(String, index=True, nullable=True)  # *
     dni = Column(Integer, unique=True, nullable=True)  # *
     birth_date = Column(Date(), nullable=True)  # *
+    first_name_tutor = Column(String, nullable=True)
+    last_name_tutor = Column(String, nullable=True)
     health_insurance_number = Column(String)
     health_insurance_id = Column(Integer, ForeignKey("healthinsurance.id"))
     health_insurance = relationship(

@@ -7,7 +7,8 @@ from sqlalchemy.orm import Session
 from app.crud import (
     UsernameAlreadyRegistered,
     EmailAlreadyRegistered,
-    DniAlreadyRegistered
+    DniAlreadyRegistered,
+    TutorDataMissing
 )
 from app import crud, models, schemas
 from app.api import deps
@@ -48,6 +49,7 @@ async def create_patient(
     """
     Create new patient.
     """
+    #TODO: estaria bueno que se valide en caso de ser menor, que los campos de
     try:
         patient = crud.patient.create(db, obj_in=patient_in)
     except UsernameAlreadyRegistered:
@@ -64,6 +66,11 @@ async def create_patient(
         raise HTTPException(
             status_code=400,
             detail="El dni ingresado ya se encuentra registrado",
+        )
+    except TutorDataMissing:
+        raise HTTPException(
+            status_code=400,
+            detail="Paciente menor de 18 requiere nombre y apellido del tutor",
         )
     #if settings.EMAILS_ENABLED and patient_in.email: FIXME (no me toma el EMAILS_ENABLED=True en .env)
     print(settings.EMAILS_ENABLED)

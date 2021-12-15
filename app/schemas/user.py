@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import date
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Extra
 
 
 # Base classes
@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     username: Optional[str]
     first_name: Optional[str]
     last_name: Optional[str]
+    force_password_change: Optional[bool] = False
 
 
 class AdminBase(UserBase):
@@ -27,9 +28,16 @@ class ReportingBase(UserBase):
     license: Optional[int]
 
 
-class PatientBase(UserBase):
+class PatientBase(BaseModel):
+    is_active: Optional[bool] = True
+    first_name: Optional[str]
+    last_name: Optional[str]
+    first_name_tutor: Optional[str]
+    last_name_tutor: Optional[str]
+    address: Optional[str]
+    phone_number: Optional[str]
     email: Optional[EmailStr]
-    dni: Optional[str]
+    dni: Optional[int]
     birth_date: Optional[date]
     health_insurance_number: Optional[int]
     clinical_history: Optional[str]
@@ -57,7 +65,11 @@ class ReportingCreate(ReportingBase):
 class PatientCreate(PatientBase):
     first_name: str
     last_name: str
-    username: str
+    first_name_tutor: Optional[str]
+    last_name_tutor: Optional[str]
+    force_password_change: Optional[bool] = True
+    address: str
+    phone_number: str
     password: str
     email: EmailStr
     dni: int
@@ -65,8 +77,16 @@ class PatientCreate(PatientBase):
     health_insurance_number: int
     clinical_history: str
 
+    class Config:
+        extra = Extra.allow  # para permitir la creacion de campos en la instancia
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.username = str(self.dni)
 
 # Properties to receive via API on update
+
+
 class AdminUpdate(AdminBase):
     password: Optional[str] = None
 
