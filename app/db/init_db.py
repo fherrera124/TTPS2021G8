@@ -441,7 +441,7 @@ def init_db(db: Session) -> None:
         name="Exoma",
         study_consent_template=exoma))
     db.add(models.TypeStudy(
-        name="Genoma mitoclondria completo",
+        name="Genoma mitoclondrial completo",
         study_consent_template=genoma))
     db.add(models.TypeStudy(
         name="Carrier",
