@@ -45,6 +45,8 @@ class User(Base):
     type = Column(String, nullable=False)
     hashed_password = Column(String, nullable=False)
     is_active = Column(Boolean(), default=True)
+    studies_updated = relationship(
+        "StudyStates", primaryjoin="User.id == StudyStates.updated_by_id", back_populates="updated_by")
 
     __mapper_args__ = {
         'polymorphic_on': 'type',
@@ -113,9 +115,6 @@ class Employee(User):
 
     studies_started = relationship(
         "Study", primaryjoin="Employee.id == Study.employee_id", back_populates="patient")
-
-    studies_updated = relationship(
-        "StudyStates", primaryjoin="Employee.id == StudyStates.employee_id", back_populates="employee")
 
     __mapper_args__ = {
         'polymorphic_identity': Role.EMPLOYEE["name"]

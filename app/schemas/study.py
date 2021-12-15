@@ -14,7 +14,7 @@ class UserBaseInDBBase(UserBase):
 
 
 class StudyStateBase(BaseModel):
-    employee: Optional[UserBaseInDBBase] = None
+    updated_by: Optional[UserBaseInDBBase] = None
     state: Optional[str] = None
     state_entered_date: Optional[datetime] = None
 

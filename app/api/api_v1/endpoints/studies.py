@@ -235,15 +235,28 @@ async def payment_receipt(
     id: int,
     current_user: models.User = Security(
         deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
+        scopes=[Role.EMPLOYEE["name"], Role.PATIENT["name"]]
     ),
     file: UploadFile = File(...),
     db: Session = Depends(deps.get_db)
 ) -> Any:
     study = retrieve_study(db, id, expected_state=StudyState.STATE_ONE)
+    if crud.user.is_patient(current_user):
+        if current_user.id != study.patient_id:
+            raise HTTPException(
+            status_code=400,
+            detail="El estudio no corresponde al paciente"
+        )
+    else: # employee
+        config = crud.config.get_config(db)
+        if config.obligated_mode == True:
+            raise HTTPException(
+            status_code=400,
+            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+        )
     study.payment_receipt = file.filename
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_TWO, employee_id=current_user.id)
+        db=db, db_obj=study, new_state=StudyState.STATE_TWO, updated_by_id=current_user.id)
     return {"filename": file.filename}
 
 
@@ -285,15 +298,28 @@ async def signed_consent(
     id: int,
     current_user: models.User = Security(
         deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
+        scopes=[Role.EMPLOYEE["name"], Role.PATIENT["name"]]
     ),
     file: UploadFile = File(...),
     db: Session = Depends(deps.get_db)
 ) -> Any:
     study = retrieve_study(db, id, expected_state=StudyState.STATE_TWO)
+    if crud.user.is_patient(current_user):
+        if current_user.id != study.patient_id:
+            raise HTTPException(
+            status_code=400,
+            detail="El estudio no corresponde al paciente"
+        )
+    else: # employee
+        config = crud.config.get_config(db)
+        if config.obligated_mode == True:
+            raise HTTPException(
+            status_code=400,
+            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+        )
     study.signed_consent = file.filename
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_THREE, employee_id=current_user.id)
+        db=db, db_obj=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
     return {"filename": file.filename}
 
 
@@ -303,11 +329,24 @@ def register_appointment(
     appointment_in: schemas.AppointmentCreate,
     current_user: models.User = Security(
         deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
+        scopes=[Role.EMPLOYEE["name"], Role.PATIENT["name"]]
     ),
     db: Session = Depends(deps.get_db)
 ) -> Any:
     study = retrieve_study(db, id, expected_state=StudyState.STATE_THREE)
+    if crud.user.is_patient(current_user):
+        if current_user.id != study.patient_id:
+            raise HTTPException(
+            status_code=400,
+            detail="El estudio no corresponde al paciente"
+        )
+    else: # employee
+        config = crud.config.get_config(db)
+        if config.obligated_mode == True:
+            raise HTTPException(
+            status_code=400,
+            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+        )
     try:
         appointment = crud.appointment.create(
             db=db, study_id=study.id, obj_in=appointment_in)
@@ -317,7 +356,7 @@ def register_appointment(
             detail="El estudio ya registra un turno",
         )
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_FOUR, employee_id=current_user.id)
+        db=db, db_obj=study, new_state=StudyState.STATE_FOUR, updated_by_id=current_user.id)
     return appointment
 
 
@@ -340,7 +379,7 @@ def register_sample(
             detail="El estudio ya registra una muestra"
         )
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_FIVE, employee_id=current_user.id)
+        db=db, db_obj=study, new_state=StudyState.STATE_FIVE, updated_by_id=current_user.id)
     return sample
 
 
@@ -363,7 +402,7 @@ def register_sample(
 #             detail="El estudio ya registra una muestra"
 #         )
 #     crud.study.update_state(
-#         db=db, db_obj=study, new_state=StudyState.STATE_SIX, employee_id=current_user.id)
+#         db=db, db_obj=study, new_state=StudyState.STATE_SIX, updated_by_id=current_user.id)
 #     return sample
 
 
@@ -386,7 +425,7 @@ def register_sample_pickup(
             status_code=400, detail="La muestra ya fue recogida.")
     crud.study.update_state(
         db=db, db_obj=study, new_state=StudyState.STATE_SIX,
-        employee_id=current_user.id, entry_date=sample.picked_up_date)
+        updated_by_id=current_user.id, entry_date=sample.picked_up_date)
     # no informa si se creó un lote
     return {"El retiro de la muestra fue registrado"}
 
@@ -405,7 +444,7 @@ def add_report(
     report = crud.report.create(db=db, study_id=study.id, obj_in=report_in)
     crud.study.update_state(
         db=db, db_obj=study, new_state=StudyState.STATE_NINE,
-        employee_id=current_user.id, entry_date=report.date_report)
+        updated_by_id=current_user.id, entry_date=report.date_report)
     return report
 
 
@@ -444,7 +483,7 @@ async def send_report(
     await fm.send_message(message)
     crud.study.update_state(
         db=db, db_obj=study, new_state=StudyState.STATE_ENDED,
-        employee_id=current_user.id)
+        updated_by_id=current_user.id)
     return {"El reporte fue enviado exitosamente."}
 
 
