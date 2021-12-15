@@ -32,6 +32,10 @@ class PatientBase(BaseModel):
     is_active: Optional[bool] = True
     first_name: Optional[str]
     last_name: Optional[str]
+    first_name_tutor: Optional[str]
+    last_name_tutor: Optional[str]
+    address: Optional[str]
+    phone_number: Optional[str]
     email: Optional[EmailStr]
     dni: Optional[int]
     birth_date: Optional[date]
@@ -61,7 +65,11 @@ class ReportingCreate(ReportingBase):
 class PatientCreate(PatientBase):
     first_name: str
     last_name: str
+    first_name_tutor: Optional[str]
+    last_name_tutor: Optional[str]
     force_password_change: Optional[bool] = True
+    address: str
+    phone_number: str
     password: str
     email: EmailStr
     dni: int

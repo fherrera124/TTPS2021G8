@@ -13,6 +13,7 @@ from app.schemas import (
     PatientCreate, PatientUpdate
 )
 from app.constants.role import Role
+from datetime import date
 
 
 class CRUDUser(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
@@ -139,6 +140,10 @@ class CRUDPatient(CRUDUser[Patient, PatientCreate, PatientUpdate]):
     def get_by_dni(self, db: Session, *, dni: str) -> Optional[ModelType]:
         return db.query(Patient).filter(Patient.dni == dni).first()
 
+    def _calculate_age(self, born):
+        today = date.today()
+        return today.year - born.year - ((today.month, today.day) < (born.month, born.day))
+
     def _validate_creation(self, db: Session, data: Dict[str, Any]) -> None:
         super()._validate_creation(db, data)
         existing_user = self.get_by_email(db, email=data["email"])
@@ -147,6 +152,17 @@ class CRUDPatient(CRUDUser[Patient, PatientCreate, PatientUpdate]):
         existing_user = self.get_by_dni(db, dni=data["dni"])
         if existing_user is not None:
             raise DniAlreadyRegistered()
+        age = self._calculate_age(data["birth_date"])
+        if age < 18:
+            if not 'first_name_tutor' in data or not data['first_name_tutor']:
+                raise TutorDataMissing()
+            if not 'last_name_tutor' in data or not data['last_name_tutor']:
+                raise TutorDataMissing()
+        else: # es mayor de edad, ignoramos datos de tutor
+            if 'first_name_tutor' in data:
+                del data["first_name_tutor"]
+            if 'last_name_tutor' in data:
+                del data["last_name_tutor"]
 
     def _validate_update(self, db: Session, db_obj: Patient, data: Dict[str, Any]) -> None:
         super()._validate_update(db, db_obj, data)
