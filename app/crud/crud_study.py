@@ -20,7 +20,7 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db.refresh(db_obj)
         self.update_state(
             db=db, db_obj=db_obj, new_state=StudyState.STATE_ONE,
-            employee_id=employee_id, entry_date=db_obj.created_date)
+            updated_by_id=employee_id, entry_date=db_obj.created_date)
         return db_obj
 
     def get_multi(
@@ -75,7 +75,7 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         return db_obj
 
     def update_state(self, db: Session, db_obj: Study, new_state: str,
-                     employee_id: int, entry_date: Optional[datetime] = None) -> Study:
+                     updated_by_id: int, entry_date: Optional[datetime] = None) -> Study:
         if entry_date is None:
             date_time = func.now()
         else:
@@ -83,7 +83,7 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         study_new_state = StudyStates(
             study_id=db_obj.id, state=new_state,
             state_entered_date=date_time,
-            employee_id=employee_id)
+            updated_by_id=updated_by_id)
         db.add(study_new_state)
         db_obj.current_state = new_state
         db_obj.updated_date = date_time

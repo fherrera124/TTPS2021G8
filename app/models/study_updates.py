@@ -4,7 +4,7 @@ from sqlalchemy import Boolean, Column, Integer, String, Text, DateTime, Float, 
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.db.base_class import Base
-from app.models import Employee, ReportingPhysician
+from app.models import ReportingPhysician
 
 
 class StudyStates(Base):
@@ -15,9 +15,9 @@ class StudyStates(Base):
         back_populates="states")
     state = Column(String)
     state_entered_date = Column(DateTime(timezone=True))
-    employee_id = Column(Integer, ForeignKey(Employee.id))
-    employee = relationship(
-        "Employee", primaryjoin="StudyStates.employee_id == Employee.id", back_populates="studies_updated")
+    updated_by_id = Column(Integer, ForeignKey('user.id'))
+    updated_by = relationship(
+        "User", primaryjoin="StudyStates.updated_by_id == User.id", back_populates="studies_updated")
 
 
 class Report(Base):
