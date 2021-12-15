@@ -27,7 +27,9 @@ def read_studies(
     limit: int = 100,
     current_user: models.User = Security(
         deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"], Role.REPORTING_PHYSICIAN["name"]],
+        scopes=[Role.EMPLOYEE["name"],
+                Role.REPORTING_PHYSICIAN["name"],
+                Role.PATIENT["name"]],
     )
 ) -> Any:
     """
@@ -36,7 +38,9 @@ def read_studies(
     if crud.user.is_reporting_physician(current_user):
         studies = crud.study.get_multi(
             db, skip=skip, limit=limit, state=StudyState.STATE_EIGHT)
-    else:
+    elif crud.user.is_patient(current_user):
+        studies = crud.study.get_multi(db, skip=skip, limit=limit, patient_id=current_user.id)
+    else: #employee
         studies = crud.study.get_multi(db, skip=skip, limit=limit)
     return studies
 

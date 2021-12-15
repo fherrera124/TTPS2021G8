@@ -26,13 +26,15 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
     def get_multi(
         self, db: Session,
         skip: int = 0, limit: int = 100,
-        state: Optional[str] = None
+        state: Optional[str] = None,
+        patient_id: Optional[int] = None
     ) -> List[Study]:
-        if state is None:
-            return db.query(Study).offset(skip).limit(limit).all()
-        return db.query(Study).\
-            filter(Study.current_state == state).offset(
-            skip).limit(limit).all()
+        res = db.query(Study)
+        if patient_id:
+            res = res.filter(Study.patient_id == patient_id)
+        if state:
+            res = res.filter(Study.current_state == state)
+        return res.offset(skip).limit(limit).all()
 
     def get_multi_delayed(
         self, db: Session,
