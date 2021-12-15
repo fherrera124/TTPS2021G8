@@ -8,6 +8,7 @@ from .crud_sample import sample
 from .crud_sample_batch import sample_batch
 from .crud_appointment import appointment
 from .crud_health_insurance import health_insurance
+from .crud_configuration import config
 from .exceptions import *
 
 
