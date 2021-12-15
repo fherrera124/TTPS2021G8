@@ -56,7 +56,6 @@ class CRUDUser(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
     def update(
         self, db: Session, *, db_obj: ModelType, obj_in: Union[UpdateSchemaType, Dict[str, Any]]
     ) -> ModelType:
-
         if isinstance(obj_in, dict):
             update_data = obj_in
         else:
@@ -85,10 +84,10 @@ class CRUDUser(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
 
     def is_employee(self, user: User) -> bool:
         return user.type == Role.EMPLOYEE["name"]
-    
+
     def is_patient(self, user: User) -> bool:
         return user.type == Role.PATIENT["name"]
-    
+
     def is_configurator(self, user: User) -> bool:
         return user.type == Role.CONFIGURATOR["name"]
 

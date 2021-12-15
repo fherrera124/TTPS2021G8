@@ -1,6 +1,6 @@
 from typing import Optional
 from datetime import date
-from pydantic import BaseModel, EmailStr
+from pydantic import BaseModel, EmailStr, Extra
 
 
 # Base classes
@@ -28,9 +28,12 @@ class ReportingBase(UserBase):
     license: Optional[int]
 
 
-class PatientBase(UserBase):
+class PatientBase(BaseModel):
+    is_active: Optional[bool] = True
+    first_name: Optional[str]
+    last_name: Optional[str]
     email: Optional[EmailStr]
-    dni: Optional[str]
+    dni: Optional[int]
     birth_date: Optional[date]
     health_insurance_number: Optional[int]
     clinical_history: Optional[str]
@@ -58,7 +61,7 @@ class ReportingCreate(ReportingBase):
 class PatientCreate(PatientBase):
     first_name: str
     last_name: str
-    username: str
+    force_password_change: Optional[bool] = True
     password: str
     email: EmailStr
     dni: int
@@ -66,8 +69,16 @@ class PatientCreate(PatientBase):
     health_insurance_number: int
     clinical_history: str
 
+    class Config:
+        extra = Extra.allow  # para permitir la creacion de campos en la instancia
+
+    def __init__(self, **data):
+        super().__init__(**data)
+        self.username = str(self.dni)
 
 # Properties to receive via API on update
+
+
 class AdminUpdate(AdminBase):
     password: Optional[str] = None
 
