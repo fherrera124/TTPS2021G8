@@ -18,7 +18,7 @@ class StudyStateBase(BaseModel):
     state: Optional[str] = None
     state_patient_view: Optional[str] = None
     state_entered_date: Optional[datetime] = None
-    state_entered_date_patient_view: Optional[str] = None
+    state_entered_date_patient_view: Optional[datetime] = None
 
 
 class StudyStateCreate(StudyStateBase):

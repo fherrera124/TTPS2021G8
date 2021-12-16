@@ -56,7 +56,7 @@ class StudyStates(Base):
                 StudyStates.state == StudyState.STATE_SIX)
             return state_six.state_entered_date
         else:
-            self.state_entered_date
+            return self.state_entered_date
 
 
 class Report(Base):
