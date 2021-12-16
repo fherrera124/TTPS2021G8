@@ -323,6 +323,22 @@ async def signed_consent(
     return {"filename": file.filename}
 
 
+@router.post("/{id}/reject-payment-receipt", response_model=dict)
+async def reject_payment_receipt(
+    id: int,
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]]
+    ),
+    db: Session = Depends(deps.get_db)
+) -> Any:
+    study = retrieve_study(db, id, expected_state=StudyState.STATE_TWO)
+    study.payment_receipt = None
+    crud.study.update_state(
+        db=db, study=study, new_state=StudyState.STATE_ONE, updated_by_id=current_user.id)
+    return {"status": "payment receipt rejected successfully"}
+
+
 @router.post("/{id}/register-appointment", response_model=schemas.Appointment)
 def register_appointment(
     id: int,
