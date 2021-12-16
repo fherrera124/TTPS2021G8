@@ -52,7 +52,7 @@ class StudyStates(Base):
             StudyState.STATE_NINE
         ):
             state_six = db.query(StudyStates).filter(
-                StudyStates.id == self.id,
+                StudyStates.study_id == self.study_id,
                 StudyStates.state == StudyState.STATE_SIX)
             return state_six.state_entered_date
         else:
