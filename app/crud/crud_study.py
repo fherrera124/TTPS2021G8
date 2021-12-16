@@ -74,25 +74,25 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def update_state(self, db: Session, db_obj: Study, new_state: str,
+    def update_state(self, db: Session, study: Study, new_state: str,
                      updated_by_id: int, entry_date: Optional[datetime] = None) -> Study:
         if entry_date is None:
             date_time = func.now()
         else:
             date_time = entry_date
         study_new_state = StudyStates(
-            study_id=db_obj.id, state=new_state,
+            study_id=study.id, state=new_state,
             state_entered_date=date_time,
             updated_by_id=updated_by_id)
         db.add(study_new_state)
-        db_obj.current_state = new_state
-        db_obj.updated_date = date_time
-        db_obj.current_state_entered_date = date_time
-        db.add(db_obj)
-        SampleBatch.new_if_qualifies(db_obj=db_obj, db=db)
+        study.current_state = new_state
+        study.updated_date = date_time
+        study.current_state_entered_date = date_time
+        db.add(study)
+        SampleBatch.new_if_qualifies(study=study, db=db)
         db.commit()
-        db.refresh(db_obj)
-        return db_obj
+        db.refresh(study)
+        return study
 
 
 study = CRUDStudy(Study)
