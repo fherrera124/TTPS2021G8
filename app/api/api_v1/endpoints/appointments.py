@@ -38,20 +38,17 @@ def appointments(
     if date.weekday() in (5, 6): # sabado o domingo
         return []
     appointments = crud.appointment.get_multi(db=db, date=date)
-
     schedule_list = init_list(date=date)
-
     for appointment in appointments:
         start = appointment.date_appointment.strftime("%H:%M")
         for schedule in schedule_list:
             if schedule.start == start:
                 patient = appointment.study.patient
-                schedule.patient = {"first_name": patient.first_name,
-                                "last_name": patient.last_name}
+                schedule.patient = {
+                    "first_name": patient.first_name,
+                    "last_name": patient.last_name
+                }
                 break
-        else:
-            continue  # only executed if the inner loop did NOT break
-        break  # only executed if the inner loop DID break
     return schedule_list
 
 #TODO: un endpoint que sea turnos cancelados

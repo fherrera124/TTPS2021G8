@@ -13,7 +13,7 @@ def retrieve_health_insurance(db: Session, id: int) -> Optional[models.HealthIns
     health_insurance = crud.health_insurance.get(db=db, id=id)
     if health_insurance is None:
         raise HTTPException(
-            status_code=404, detail="No se encontró la muestra."
+            status_code=404, detail="No se encontró la obra social."
         )
     return health_insurance
 

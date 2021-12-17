@@ -256,7 +256,7 @@ async def payment_receipt(
         )
     study.payment_receipt = file.filename
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_TWO, updated_by_id=current_user.id)
+        db=db, study=study, new_state=StudyState.STATE_TWO, updated_by_id=current_user.id)
     return {"filename": file.filename}
 
 
@@ -319,7 +319,7 @@ async def signed_consent(
         )
     study.signed_consent = file.filename
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
+        db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
     return {"filename": file.filename}
 
 
@@ -372,7 +372,7 @@ def register_appointment(
             detail="El estudio ya registra un turno",
         )
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_FOUR, updated_by_id=current_user.id)
+        db=db, study=study, new_state=StudyState.STATE_FOUR, updated_by_id=current_user.id)
     return appointment
 
 
@@ -395,7 +395,7 @@ def register_sample(
             detail="El estudio ya registra una muestra"
         )
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_FIVE, updated_by_id=current_user.id)
+        db=db, study=study, new_state=StudyState.STATE_FIVE, updated_by_id=current_user.id)
     return sample
 
 
@@ -418,7 +418,7 @@ def register_sample(
 #             detail="El estudio ya registra una muestra"
 #         )
 #     crud.study.update_state(
-#         db=db, db_obj=study, new_state=StudyState.STATE_SIX, updated_by_id=current_user.id)
+#         db=db, study=study, new_state=StudyState.STATE_SIX, updated_by_id=current_user.id)
 #     return sample
 
 
@@ -440,7 +440,7 @@ def register_sample_pickup(
         raise HTTPException(
             status_code=400, detail="La muestra ya fue recogida.")
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_SIX,
+        db=db, study=study, new_state=StudyState.STATE_SIX,
         updated_by_id=current_user.id, entry_date=sample.picked_up_date)
     # no informa si se creó un lote
     return {"El retiro de la muestra fue registrado"}
@@ -459,7 +459,7 @@ def add_report(
     study = retrieve_study(db, id, expected_state=StudyState.STATE_EIGHT)
     report = crud.report.create(db=db, study_id=study.id, obj_in=report_in)
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_NINE,
+        db=db, study=study, new_state=StudyState.STATE_NINE,
         updated_by_id=current_user.id, entry_date=report.date_report)
     return report
 
@@ -498,7 +498,7 @@ async def send_report(
     fm = FastMail(conf)
     await fm.send_message(message)
     crud.study.update_state(
-        db=db, db_obj=study, new_state=StudyState.STATE_ENDED,
+        db=db, study=study, new_state=StudyState.STATE_ENDED,
         updated_by_id=current_user.id)
     return {"El reporte fue enviado exitosamente."}
 

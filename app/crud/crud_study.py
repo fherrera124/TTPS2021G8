@@ -19,7 +19,7 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db.commit()
         db.refresh(db_obj)
         self.update_state(
-            db=db, db_obj=db_obj, new_state=StudyState.STATE_ONE,
+            db=db, study=db_obj, new_state=StudyState.STATE_ONE,
             updated_by_id=employee_id, entry_date=db_obj.created_date)
         return db_obj
 

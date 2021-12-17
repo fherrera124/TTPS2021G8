@@ -32,7 +32,7 @@ studies = db.query(models.Study).filter(
 
 
 for study in studies:
-    crud.study.update_state(db=db, db_obj=study,
+    crud.study.update_state(db=db, study=study,
                             new_state=StudyState.STATE_ONE_ERROR)
 
 
@@ -44,7 +44,7 @@ studies = db.query(models.Study).join(models.Appointment).filter(
 
 for study in studies:
     crud.appointment.remove(db=db, id=study.appointment.id)
-    crud.study.update_state(db=db, db_obj=study,
+    crud.study.update_state(db=db, study=study,
                             new_state=StudyState.STATE_THREE)
 
 
