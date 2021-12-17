@@ -50,11 +50,12 @@ class StudyStates(Base):
             StudyState.STATE_SEVEN,
             StudyState.STATE_EIGHT,
             StudyState.STATE_NINE
-        ):
-            state_six = db.query(StudyStates).filter(
-                StudyStates.study_id == self.study_id,
-                StudyStates.state == StudyState.STATE_SIX)
-            return state_six.state_entered_date
+        ): # FIXME
+            #state_six = db.query(StudyStates).filter(
+            #    StudyStates.study_id == self.study_id,
+            #    StudyStates.state == StudyState.STATE_SIX)
+            #return state_six.state_entered_date
+            return self.state_entered_date
         else:
             return self.state_entered_date
 
