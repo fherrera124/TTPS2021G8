@@ -89,7 +89,14 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         study.updated_date = date_time
         study.current_state_entered_date = date_time
         db.add(study)
-        SampleBatch.new_if_qualifies(study=study, db=db)
+        sample_batch = SampleBatch.new_if_qualifies(study=study, db=db)
+        if sample_batch:  # se creo un lote
+            for sample in sample_batch.samples:
+                study_new_state = StudyStates(
+                    study_id=sample.study.id, state=StudyState.STATE_SEVEN,
+                    state_entered_date=date_time,
+                    updated_by_id=updated_by_id)
+                db.add(study_new_state)
         db.commit()
         db.refresh(study)
         return study

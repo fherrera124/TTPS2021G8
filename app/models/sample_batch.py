@@ -34,3 +34,5 @@ class SampleBatch(Base):
                 for sample in samples:
                     sample.sample_batch = batch
                     sample.study.current_state = StudyState.STATE_SEVEN
+                return batch
+        return None
