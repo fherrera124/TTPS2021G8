@@ -5,6 +5,7 @@ from app import crud, models, schemas
 from app.api import deps
 from app.constants.role import Role
 from app.crud.exceptions import SampleAlreadyPaid
+from app.constants.state import StudyState
 
 
 router = APIRouter()
@@ -81,6 +82,32 @@ def read_sample(
     if not sample:
         raise HTTPException(status_code=404, detail="Muestra no encontrada")
     return sample
+
+
+@router.post("/reject-sample")
+def reject_sample(
+    id: int,
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]]
+    ),
+    db: Session = Depends(deps.get_db)
+) -> Any:
+    sample = crud.sample.get(db=db, id=id)
+    if sample is None:
+        raise HTTPException(
+            status_code=404, detail="No se encontró la muestra"
+        )
+    study = sample.study
+    if study.current_state == StudyState.STATE_SEVEN:
+        crud.sample.remove(db=db, id=sample.id)  # se elimina la muestra
+        print(study.sample)
+        crud.study.update_state(
+            db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
+        return {"status": "sample rejected and deleted"}
+    raise HTTPException(
+        status_code=400, detail="Acción incompatible con el estado del estudio"
+    )
 
 
 @router.post("/mark-as-processed")

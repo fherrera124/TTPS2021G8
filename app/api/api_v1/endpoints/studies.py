@@ -217,7 +217,11 @@ def read_study(
     return study
 
 
-def retrieve_study(db: Session, id: int, expected_state: Optional[str] = None) -> Optional[models.Study]:
+def retrieve_study(
+    db: Session,
+    id: int,
+    expected_state: Optional[str] = None
+) -> Optional[models.Study]:
     study = crud.study.get(db=db, id=id)
     if study is None:
         raise HTTPException(
