@@ -11,7 +11,7 @@ services:
       - ./pyproject.toml:/pyproject.toml
     build:
       context: ./
-      dockerfile: backend.dockerfile
+      dockerfile: fastapi.dockerfile
       args:
         INSTALL_DEV: ${INSTALL_DEV-true}
     command: bash -c "while true; do sleep 1; done"  # Infinite loop to keep container live doing nothing

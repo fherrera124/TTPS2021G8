@@ -40,6 +40,12 @@ def init_db(db: Session) -> None:
     db.refresh(insu2)
 
 
+    # configuracion
+
+    config = models.Configuration()
+    db.add(config)
+    db.commit()
+
 
     # usuarios del sistema
 

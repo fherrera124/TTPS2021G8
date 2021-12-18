@@ -22,15 +22,17 @@ class SampleBatch(Base):
         back_populates="sample_batch")
 
     @classmethod
-    def new_if_qualifies(cls, db_obj: Study, db: Session):
-        if db_obj.current_state == StudyState.STATE_SIX:
+    def new_if_qualifies(cls, study: Study, db: Session):
+        if study.current_state == StudyState.STATE_SIX:
             samples = db.query(Sample).join(Study).filter(
                 Study.current_state == StudyState.STATE_SIX
             ).all()
             if len(samples) == cls.BATCH_SIZE -1:
                 batch = cls()
                 db.add(batch)
-                samples.append(db_obj.sample)
+                samples.append(study.sample)
                 for sample in samples:
                     sample.sample_batch = batch
                     sample.study.current_state = StudyState.STATE_SEVEN
+                return batch
+        return None

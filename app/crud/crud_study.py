@@ -19,8 +19,8 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db.commit()
         db.refresh(db_obj)
         self.update_state(
-            db=db, db_obj=db_obj, new_state=StudyState.STATE_ONE,
-            employee_id=employee_id, entry_date=db_obj.created_date)
+            db=db, study=db_obj, new_state=StudyState.STATE_ONE,
+            updated_by_id=employee_id, entry_date=db_obj.created_date)
         return db_obj
 
     def get_multi(
@@ -74,25 +74,32 @@ class CRUDStudy(CRUDBase[Study, StudyCreate, StudyUpdate]):
         db.refresh(db_obj)
         return db_obj
 
-    def update_state(self, db: Session, db_obj: Study, new_state: str,
-                     employee_id: int, entry_date: Optional[datetime] = None) -> Study:
+    def update_state(self, db: Session, study: Study, new_state: str,
+                     updated_by_id: int, entry_date: Optional[datetime] = None) -> Study:
         if entry_date is None:
             date_time = func.now()
         else:
             date_time = entry_date
         study_new_state = StudyStates(
-            study_id=db_obj.id, state=new_state,
+            study_id=study.id, state=new_state,
             state_entered_date=date_time,
-            employee_id=employee_id)
+            updated_by_id=updated_by_id)
         db.add(study_new_state)
-        db_obj.current_state = new_state
-        db_obj.updated_date = date_time
-        db_obj.current_state_entered_date = date_time
-        db.add(db_obj)
-        SampleBatch.new_if_qualifies(db_obj=db_obj, db=db)
+        study.current_state = new_state
+        study.updated_date = date_time
+        study.current_state_entered_date = date_time
+        db.add(study)
+        sample_batch = SampleBatch.new_if_qualifies(study=study, db=db)
+        if sample_batch:  # se creo un lote
+            for sample in sample_batch.samples:
+                study_new_state = StudyStates(
+                    study_id=sample.study.id, state=StudyState.STATE_SEVEN,
+                    state_entered_date=date_time,
+                    updated_by_id=updated_by_id)
+                db.add(study_new_state)
         db.commit()
-        db.refresh(db_obj)
-        return db_obj
+        db.refresh(study)
+        return study
 
 
 study = CRUDStudy(Study)
