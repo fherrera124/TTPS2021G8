@@ -21,10 +21,10 @@ class CRUDHealthInsurance(CRUDBase[HealthInsurance, HealthInsuranceCreate, Healt
             create_data = obj_in
         else:
             create_data = obj_in.dict(exclude_unset=True)
-        health_insurance = self.get_by_name(db, name=data["name"])
+        health_insurance = self.get_by_name(db, name=create_data["name"])
         if health_insurance is not None:
             raise NameAlreadyRegistered()
-        health_insurance = self.get_by_email(db, email=data["email"])
+        health_insurance = self.get_by_email(db, email=create_data["email"])
         if health_insurance is not None:
             raise EmailAlreadyRegistered()
         db_obj = self.model(**create_data)
