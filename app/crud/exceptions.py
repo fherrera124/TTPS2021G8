@@ -10,6 +10,10 @@ class UsernameAlreadyRegistered(FastAPIUsersException):
     pass
 
 
+class NameAlreadyRegistered(FastAPIUsersException):
+    pass
+
+
 class EmailAlreadyRegistered(FastAPIUsersException):
     pass
 

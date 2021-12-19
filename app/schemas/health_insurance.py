@@ -5,14 +5,16 @@ from pydantic import BaseModel
 
 # Shared properties
 class HealthInsuranceBase(BaseModel):
-    name: str
-    telephone: str
-    email: str
+    name: Optional[str] = None
+    telephone: Optional[str] = None
+    email: Optional[str] = None
 
 
 # Properties to receive on item creation
 class HealthInsuranceCreate(HealthInsuranceBase):
-    pass
+    name: str
+    telephone: str
+    email: str
 
 
 # Properties to receive on item update
