@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.constants.role import Role
-from app.constants.state import StudyState
+from app.constants.state import StudyState, AppointmentState
 from app.crud.exceptions import *
 from app.core.mail import conf
 from weasyprint import HTML
@@ -39,8 +39,9 @@ def read_studies(
         studies = crud.study.get_multi(
             db, skip=skip, limit=limit, state=StudyState.STATE_EIGHT)
     elif crud.user.is_patient(current_user):
-        studies = crud.study.get_multi(db, skip=skip, limit=limit, patient_id=current_user.id)
-    else: #employee
+        studies = crud.study.get_multi(
+            db, skip=skip, limit=limit, patient_id=current_user.id)
+    else:  # employee
         studies = crud.study.get_multi(db, skip=skip, limit=limit)
     return studies
 
@@ -248,16 +249,16 @@ async def payment_receipt(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=400,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     study.payment_receipt = file.filename
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_TWO, updated_by_id=current_user.id)
@@ -311,16 +312,16 @@ async def signed_consent(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=400,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     study.signed_consent = file.filename
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
@@ -357,16 +358,16 @@ def register_appointment(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=400,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     try:
         appointment = crud.appointment.create(
             db=db, study_id=study.id, obj_in=appointment_in)
@@ -400,6 +401,8 @@ def register_sample(
         )
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_FIVE, updated_by_id=current_user.id)
+    crud.appointment.update_state(
+        db=db, appointment=study.appointment, new_state=AppointmentState.STATE_ENDED)
     return sample
 
 

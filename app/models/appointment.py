@@ -7,6 +7,7 @@ class Appointment(Base):
     id = Column(Integer, primary_key=True, index=True)
     date_appointment = Column(DateTime, nullable=False)
     description = Column(String)
+    current_state = Column(String)
     study_id = Column(Integer, ForeignKey("study.id"))
     study = relationship(
         "Study", primaryjoin="Appointment.study_id == Study.id",

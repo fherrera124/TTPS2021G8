@@ -101,7 +101,6 @@ def reject_sample(
     study = sample.study
     if study.current_state == StudyState.STATE_SEVEN:
         crud.sample.remove(db=db, id=sample.id)  # se elimina la muestra
-        print(study.sample)
         crud.study.update_state(
             db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
         return {"status": "sample rejected and deleted"}

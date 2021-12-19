@@ -31,8 +31,14 @@ class StudyStatePatientView:
     STATE_ENDED = "Resultado completo"
 
 
-
 class SampleBatchState:
 
     STATE_ONE = "En procesamiento"
     STATE_TWO = "Procesado"
+
+
+class AppointmentState:
+
+    STATE_PENDING = "Pendiente"
+    STATE_ENDED = "Finalizado"
+    STATE_CANCELLED = "Cancelado"
