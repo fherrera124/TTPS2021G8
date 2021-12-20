@@ -61,6 +61,14 @@ class StudyUpdate(StudyBase):
     referring_physician_id: Optional[int]
 
 
+class SimplifiedTypeStudy(BaseModel):
+    id: int
+    name: str
+
+    class Config:
+        orm_mode = True
+
+
 # Properties shared by models stored in DB
 class StudyInDBBase(StudyBase):
     id: int
@@ -70,7 +78,7 @@ class StudyInDBBase(StudyBase):
     current_state_entered_date: Optional[datetime] = None
     employee: Optional[Employee] = None  # TODO: arreglar el None
     patient: Optional[Patient] = None
-    type_study: Any  # TODO: implementar esquema
+    type_study: Optional[SimplifiedTypeStudy] = None
     referring_physician: ReferringPhysician
     presumptive_diagnosis: Any  # TODO: implementar esquema
     payment_receipt: Optional[str] = None
