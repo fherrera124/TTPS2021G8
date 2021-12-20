@@ -50,12 +50,16 @@ def read_batches(
 def read_batch(
     *,
     db: Session = Depends(deps.get_db),
-    id: int
+    id: int,
+    current_user: models.User = Security(
+        deps.get_current_active_user,
+        scopes=[Role.EMPLOYEE["name"]],
+    )
 ) -> Any:
     """
     Get batch by ID.
     """
-    batch = crud.batch.get(db=db, id=id)
+    batch = crud.sample_batch.get(db=db, id=id)
     if not batch:
         raise HTTPException(status_code=404, detail="Lote no encontrado")
     return batch
