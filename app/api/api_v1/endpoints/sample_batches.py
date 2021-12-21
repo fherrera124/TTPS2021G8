@@ -68,7 +68,8 @@ def read_batch(
 @router.post("/{id}/mark-as-processed", response_model=schemas.SampleBatch)
 def mark_batch_as_processed(
     id: int,
-    url: str = Body(...),
+    url: str,
+    rejected_samples: List[int],
     current_user: models.User = Security(
         deps.get_current_active_user,
         scopes=[Role.EMPLOYEE["name"]]
@@ -77,6 +78,27 @@ def mark_batch_as_processed(
 ) -> Any:
     sample_batch = retrieve_sample_batch(
         db, id, expected_state=SampleBatchState.STATE_ONE)
+    # Primero, eliminar las muestras que se rechazan
+    # y volver los estudios correspondientes al estado
+    # de espera de selección de turno
+    for sample_id in rejected_samples:
+        sample = retrieve_sample(db=db, id=sample_id)
+        if sample is None:
+            raise HTTPException(
+                status_code=404, detail="No se encontró la muestra"
+            )
+        study = sample.study
+        if study.current_state == StudyState.STATE_SEVEN:
+            crud.sample.remove(db=db, id=sample.id)  # se elimina la muestra
+            crud.study.update_state(
+                db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
+        else:
+            raise HTTPException(
+                status_code=400, detail="Acción incompatible con el estado del estudio"
+            )
+    # Segundo, marcar el lote como procesado. Con
+    # las muestras aptas, se pasan los estudios
+    # correspondientes al estado de espera de interpretación
     try:
         sample_batch = crud.sample_batch.mark_as_processed(
             db=db, db_obj=sample_batch, url=url)
@@ -84,7 +106,7 @@ def mark_batch_as_processed(
         raise HTTPException(
             status_code=400, detail="El lote ya fue procesado."
         )
-    for sample in sample_batch.samples:
+    for sample in sample_batch.samples:  # en teoria, ya no deberian estar los eliminados
         crud.study.update_state(
             db=db, study=sample.study, new_state=StudyState.STATE_EIGHT,
             updated_by_id=current_user.id,
