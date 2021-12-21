@@ -4,11 +4,12 @@ from sqlalchemy import (
     Text, DateTime, Float, ForeignKey
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.sql import func
 from app.db.base_class import Base
 from .diagnosis import Diagnosis
 from app.models import Patient, Employee
-
+from app.constants.state import StudyState, StudyStatePatientView
 
 
 class TypeStudy(Base):
@@ -74,3 +75,23 @@ class Study(Base):
         "Appointment", primaryjoin="Study.id == Appointment.study_id", back_populates="study", uselist=False)
     
     delayed = Column(Boolean, default=False)
+
+    @hybrid_property
+    def current_state_patient_view(self):
+        # Esta propiedad hibrida me permite definir
+        # un atributo que se construye "on the fly"
+        # a nivel de Python, siendo trasparente a la db.
+        state_translation = {
+            StudyState.STATE_ONE: StudyStatePatientView.STATE_ONE,
+            StudyState.STATE_ONE_ERROR: StudyStatePatientView.STATE_ONE_ERROR,
+            StudyState.STATE_TWO: StudyStatePatientView.STATE_TWO,
+            StudyState.STATE_THREE: StudyStatePatientView.STATE_THREE,
+            StudyState.STATE_FOUR: StudyStatePatientView.STATE_FOUR,
+            StudyState.STATE_FIVE: StudyStatePatientView.STATE_FIVE,
+            StudyState.STATE_SIX: StudyStatePatientView.STATE_SIX,
+            StudyState.STATE_SEVEN: StudyStatePatientView.STATE_SIX,
+            StudyState.STATE_EIGHT: StudyStatePatientView.STATE_SIX,
+            StudyState.STATE_NINE: StudyStatePatientView.STATE_SIX,
+            StudyState.STATE_ENDED: StudyStatePatientView.STATE_ENDED,
+        }
+        return state_translation[self.current_state]

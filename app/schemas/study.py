@@ -72,11 +72,12 @@ class SimplifiedTypeStudy(BaseModel):
 # Properties shared by models stored in DB
 class StudyInDBBase(StudyBase):
     id: int
-    created_date: Optional[datetime] = None  # TODO: arreglar el None
+    created_date: Optional[datetime] = None
     updated_date: Optional[datetime] = None
-    current_state: Optional[Any] = None
+    current_state: Optional[str] = None
+    current_state_patient_view: Optional[str] = None
     current_state_entered_date: Optional[datetime] = None
-    employee: Optional[Employee] = None  # TODO: arreglar el None
+    employee: Optional[Employee] = None
     patient: Optional[Patient] = None
     type_study: Optional[SimplifiedTypeStudy] = None
     referring_physician: ReferringPhysician
