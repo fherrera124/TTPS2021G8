@@ -6,6 +6,7 @@ from app.api import deps
 from app.constants.role import Role
 from app.constants.state import StudyState, SampleBatchState
 from app.crud.exceptions import SampleBatchAlreadyProccesed
+from .samples import retrieve_sample
 
 
 router = APIRouter()

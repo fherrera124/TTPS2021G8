@@ -396,7 +396,7 @@ def register_sample(
     return sample
 
 
-@router.post("/{id}/register-sample-pickup")
+@router.post("/{id}/register-sample-pickup", response_model=schemas.Msg)
 def register_sample_pickup(
     id: int,
     picked_up_by: str = Body(...),
@@ -417,7 +417,7 @@ def register_sample_pickup(
         db=db, study=study, new_state=StudyState.STATE_SIX,
         updated_by_id=current_user.id, entry_date=sample.picked_up_date)
     # no informa si se creó un lote
-    return {"El retiro de la muestra fue registrado"}
+    return {"msg": "El retiro de la muestra fue registrado"}
 
 
 @router.post("/{id}/add-report", response_model=schemas.Report)
@@ -438,7 +438,7 @@ def add_report(
     return report
 
 
-@router.post("/{id}/send-report")
+@router.post("/{id}/send-report", response_model=schemas.Msg)
 async def send_report(
     id: int,
     current_user: models.User = Security(
@@ -474,7 +474,7 @@ async def send_report(
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_ENDED,
         updated_by_id=current_user.id)
-    return {"El reporte fue enviado exitosamente."}
+    return {"msg": "El reporte fue enviado exitosamente."}
 
 
 @router.get("/{id}/study-history", response_model=List[schemas.StudyState])

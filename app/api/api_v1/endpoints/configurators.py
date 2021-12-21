@@ -145,7 +145,6 @@ def get_configuration(
     Get configuration.
     """
     configuration = crud.config.get_config(db)
-    print(configuration)
     if not configuration:
         raise HTTPException(
             status_code=404,

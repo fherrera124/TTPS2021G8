@@ -40,6 +40,7 @@ class PatientBase(BaseModel):
     dni: Optional[int]
     birth_date: Optional[date]
     health_insurance_number: Optional[int]
+    health_insurance_id: Optional[int]
     clinical_history: Optional[str]
 
 
@@ -74,7 +75,6 @@ class PatientCreate(PatientBase):
     email: EmailStr
     dni: int
     birth_date: date
-    health_insurance_number: int
     clinical_history: str
 
     class Config:
@@ -104,7 +104,7 @@ class ReportingUpdate(ReportingBase):
 
 
 class PatientUpdate(PatientBase):
-    password: Optional[str] = None
+    force_password_change: Optional[bool] = True
 
 
 class UserInDBBase(UserBase):
