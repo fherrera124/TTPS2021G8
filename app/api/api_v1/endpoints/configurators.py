@@ -132,7 +132,7 @@ def update_configuration(
     return crud.config.update(db, db_obj=configuration, obj_in=configurator_in)
 
 
-@router.get("/get-configuration", response_model=schemas.Configuration)
+@router.get("/configuration/get", response_model=schemas.Configuration)
 def get_configuration(
     *,
     db: Session = Depends(deps.get_db),
@@ -145,6 +145,7 @@ def get_configuration(
     Get configuration.
     """
     configuration = crud.config.get_config(db)
+    print(configuration)
     if not configuration:
         raise HTTPException(
             status_code=404,
