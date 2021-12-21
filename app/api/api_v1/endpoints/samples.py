@@ -84,29 +84,34 @@ def read_sample(
     return sample
 
 
-@router.post("/reject-sample")
-def reject_sample(
-    id: int,
+@router.post("/reject-samples")
+def reject_samples(
+    samples: List[int],
     current_user: models.User = Security(
         deps.get_current_active_user,
         scopes=[Role.EMPLOYEE["name"]]
     ),
     db: Session = Depends(deps.get_db)
 ) -> Any:
-    sample = crud.sample.get(db=db, id=id)
-    if sample is None:
-        raise HTTPException(
-            status_code=404, detail="No se encontró la muestra"
-        )
-    study = sample.study
-    if study.current_state == StudyState.STATE_SEVEN:
-        crud.sample.remove(db=db, id=sample.id)  # se elimina la muestra
-        crud.study.update_state(
-            db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
-        return {"status": "sample rejected and deleted"}
-    raise HTTPException(
-        status_code=400, detail="Acción incompatible con el estado del estudio"
-    )
+    """
+    Reject 1..n samples.
+    """
+    for sample_id in samples:
+        sample = retrieve_sample(db=db, id=sample_id)
+        if sample is None:
+            raise HTTPException(
+                status_code=404, detail="No se encontró la muestra"
+            )
+        study = sample.study
+        if study.current_state == StudyState.STATE_SEVEN:
+            crud.sample.remove(db=db, id=sample.id)  # se elimina la muestra
+            crud.study.update_state(
+                db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
+        else:
+            raise HTTPException(
+                status_code=400, detail="Acción incompatible con el estado del estudio"
+            )
+    return {"status": "samples successfully rejected and deleted"}
 
 
 @router.post("/mark-as-processed")
@@ -118,6 +123,9 @@ def mark_samples_as_paid(
     ),
     db: Session = Depends(deps.get_db)
 ) -> Any:
+    """
+    Mark 1..n samples as processed.
+    """
     for sample_id in samples:
         sample = retrieve_sample(db=db, id=sample_id)
         try:
