@@ -110,7 +110,7 @@ def update_configurator(
         )
 
 
-@router.put("/update-configuration", response_model=schemas.Configuration)
+@router.put("/configuration/update", response_model=schemas.Configuration)
 def update_configuration(
     *,
     db: Session = Depends(deps.get_db),

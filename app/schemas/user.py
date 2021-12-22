@@ -82,7 +82,7 @@ class PatientCreate(PatientBase):
     def __init__(self, **data):
         super().__init__(**data)
         self.username = str(self.dni)
-        self.password = "changeme"
+        self.password = str(self.dni)
 
 # Properties to receive via API on update
 

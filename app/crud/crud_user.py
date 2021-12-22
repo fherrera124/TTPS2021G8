@@ -37,9 +37,7 @@ class CRUDUser(CRUDBase[ModelType, CreateSchemaType, UpdateSchemaType]):
 
         del create_data["password"]
         create_data["hashed_password"] = get_password_hash(obj_in.password)
-
         db_obj = self.model(**create_data)
-
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
