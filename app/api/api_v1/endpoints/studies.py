@@ -76,7 +76,7 @@ def types_amount(
     """
     Retrieve amount of studies of each type.
     """
-    type_studies = ['Exoma', 'Genoma', 'Carrier', 'Cariotipo', 'Array CGH']
+    type_studies = ['Exoma', 'Genoma mitoclondrial completo', 'Carrier', 'Cariotipo', 'Array CGH']
     l = []
     for study_type in type_studies:
         am = crud.study.get_type_amount(db, study_type=study_type)

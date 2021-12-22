@@ -79,7 +79,7 @@ async def create_patient(
 
 
 @router.post("/open", response_model=schemas.Patient)
-def create_patient_open(
+async def create_patient_open(
     *,
     db: Session = Depends(deps.get_db),
     patient_in: schemas.PatientCreate,
@@ -113,6 +113,10 @@ def create_patient_open(
         raise HTTPException(
             status_code=400,
             detail="Paciente menor de 18 requiere nombre y apellido del tutor",
+        )
+    if settings.EMAILS_ENABLED and patient_in.email:
+        await send_new_account_email(
+            email_to=patient_in.email, username=patient_in.username, password=patient_in.password
         )
     return patient
 
