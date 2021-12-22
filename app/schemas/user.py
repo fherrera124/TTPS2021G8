@@ -71,7 +71,6 @@ class PatientCreate(PatientBase):
     force_password_change: Optional[bool] = True
     address: str
     phone_number: str
-    password: str
     email: EmailStr
     dni: int
     birth_date: date
@@ -83,6 +82,7 @@ class PatientCreate(PatientBase):
     def __init__(self, **data):
         super().__init__(**data)
         self.username = str(self.dni)
+        self.password = "changeme"
 
 # Properties to receive via API on update
 

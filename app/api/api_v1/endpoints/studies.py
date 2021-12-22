@@ -76,7 +76,8 @@ def types_amount(
     """
     Retrieve amount of studies of each type.
     """
-    type_studies = ['Exoma', 'Genoma mitoclondrial completo', 'Carrier', 'Cariotipo', 'Array CGH']
+    type_studies = ['Exoma', 'Genoma mitoclondrial completo',
+                    'Carrier', 'Cariotipo', 'Array CGH']
     l = []
     for study_type in type_studies:
         am = crud.study.get_type_amount(db, study_type=study_type)
@@ -431,7 +432,8 @@ def add_report(
     db: Session = Depends(deps.get_db)
 ) -> Any:
     study = retrieve_study(db, id, expected_state=StudyState.STATE_EIGHT)
-    report = crud.report.create(db=db, study_id=study.id, obj_in=report_in)
+    report = crud.report.create(
+        db=db, study_id=study.id, physician_id=current_user.id, obj_in=report_in)
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_NINE,
         updated_by_id=current_user.id, entry_date=report.date_report)

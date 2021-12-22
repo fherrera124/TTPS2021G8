@@ -62,14 +62,14 @@ class StudyStates(Base):
 
 class Report(Base):
     id = Column(Integer, primary_key=True, index=True)
-    study_id = Column(Integer, ForeignKey("study.id"))
+    study_id = Column(Integer, ForeignKey("study.id"), nullable=False)
     study = relationship(
         "Study", primaryjoin="Report.study_id == Study.id", back_populates="report")
 
-    reporting_physician_id = Column(Integer, ForeignKey(ReportingPhysician.id))
+    reporting_physician_id = Column(Integer, ForeignKey(ReportingPhysician.id), nullable=False)
     reporting_physician = relationship(
         "ReportingPhysician", primaryjoin="Report.reporting_physician_id == ReportingPhysician.id", back_populates="reports")
 
     result = Column(String, default=False)
     date_report = Column(DateTime, server_default=func.now())
-    report = Column(Text)
+    report = Column(Text, nullable=False)
