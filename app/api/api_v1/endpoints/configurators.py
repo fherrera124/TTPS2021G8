@@ -110,7 +110,7 @@ def update_configurator(
         )
 
 
-@router.put("/update-configuration", response_model=schemas.Configuration)
+@router.put("/configuration/update", response_model=schemas.Configuration)
 def update_configuration(
     *,
     db: Session = Depends(deps.get_db),
@@ -132,7 +132,7 @@ def update_configuration(
     return crud.config.update(db, db_obj=configuration, obj_in=configurator_in)
 
 
-@router.get("/get-configuration", response_model=schemas.Configuration)
+@router.get("/configuration/get", response_model=schemas.Configuration)
 def get_configuration(
     *,
     db: Session = Depends(deps.get_db),

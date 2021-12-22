@@ -49,7 +49,6 @@ async def create_patient(
     """
     Create new patient.
     """
-    #TODO: estaria bueno que se valide en caso de ser menor, que los campos de
     try:
         patient = crud.patient.create(db, obj_in=patient_in)
     except UsernameAlreadyRegistered:
@@ -72,24 +71,18 @@ async def create_patient(
             status_code=400,
             detail="Paciente menor de 18 requiere nombre y apellido del tutor",
         )
-    #if settings.EMAILS_ENABLED and patient_in.email: FIXME (no me toma el EMAILS_ENABLED=True en .env)
-    print(settings.EMAILS_ENABLED)
-    print(patient_in.email)
-    await send_new_account_email(
-        email_to=patient_in.email, username=patient_in.username, password=patient_in.password
-    )
+    if settings.EMAILS_ENABLED and patient_in.email:
+        await send_new_account_email(
+            email_to=patient_in.email, username=patient_in.username, password=patient_in.password
+        )
     return patient
 
 
 @router.post("/open", response_model=schemas.Patient)
-def create_patient_open(
+async def create_patient_open(
     *,
     db: Session = Depends(deps.get_db),
-    first_name: str = Body(...),
-    last_name: str = Body(...),
-    password: str = Body(...),
-    email: EmailStr = Body(...)
-
+    patient_in: schemas.PatientCreate,
 ) -> Any:
     """
     Create new patient without the need to be logged in.
@@ -97,12 +90,10 @@ def create_patient_open(
     if not settings.USERS_OPEN_REGISTRATION:
         raise HTTPException(
             status_code=403,
-            detail="Open users registration is forbidden on this server",
+            detail="El registro público de usuarios está deshabilitado en este server.",
         )
-    patient_in = schemas.PatientCreate(
-        password=password, first_name=first_name, last_name=last_name)
     try:
-        return crud.patient.create(db, obj_in=patient_in)
+        patient = crud.patient.create(db, obj_in=patient_in)
     except UsernameAlreadyRegistered:
         raise HTTPException(
             status_code=400,
@@ -118,6 +109,16 @@ def create_patient_open(
             status_code=400,
             detail="El dni ingresado ya se encuentra registrado",
         )
+    except TutorDataMissing:
+        raise HTTPException(
+            status_code=400,
+            detail="Paciente menor de 18 requiere nombre y apellido del tutor",
+        )
+    if settings.EMAILS_ENABLED and patient_in.email:
+        await send_new_account_email(
+            email_to=patient_in.email, username=patient_in.username, password=patient_in.password
+        )
+    return patient
 
 
 @router.get("/{patient_id}", response_model=schemas.Patient)

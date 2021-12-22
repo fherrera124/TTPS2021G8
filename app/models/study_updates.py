@@ -41,35 +41,18 @@ class StudyStates(Base):
         }
         return state_translation[self.state]
 
-    @hybrid_property
-    def state_entered_date_patient_view(self):
-        # Como los estados 7, 8, 9 son transparentes al paciente,
-        # además de sólo mostrar el estado 6, debemos asegurarnos
-        # de mostrar la fecha de dicho estado.
-        if self.state in (
-            StudyState.STATE_SEVEN,
-            StudyState.STATE_EIGHT,
-            StudyState.STATE_NINE
-        ): # FIXME
-            #state_six = db.query(StudyStates).filter(
-            #    StudyStates.study_id == self.study_id,
-            #    StudyStates.state == StudyState.STATE_SIX)
-            #return state_six.state_entered_date
-            return self.state_entered_date
-        else:
-            return self.state_entered_date
-
 
 class Report(Base):
     id = Column(Integer, primary_key=True, index=True)
-    study_id = Column(Integer, ForeignKey("study.id"))
+    study_id = Column(Integer, ForeignKey("study.id"), nullable=False)
     study = relationship(
         "Study", primaryjoin="Report.study_id == Study.id", back_populates="report")
 
-    reporting_physician_id = Column(Integer, ForeignKey(ReportingPhysician.id))
+    reporting_physician_id = Column(Integer, ForeignKey(
+        ReportingPhysician.id), nullable=False)
     reporting_physician = relationship(
         "ReportingPhysician", primaryjoin="Report.reporting_physician_id == ReportingPhysician.id", back_populates="reports")
 
     result = Column(String, default=False)
     date_report = Column(DateTime, server_default=func.now())
-    report = Column(Text)
+    report = Column(Text, nullable=False)

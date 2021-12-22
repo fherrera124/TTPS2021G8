@@ -17,13 +17,14 @@ class AppointmentCreate(AppointmentBase):
 
 # Properties to receive on item update
 class AppointmentUpdate(AppointmentBase):
-    pass
+    current_state: Optional[str] = None
 
 
 # Properties shared by models stored in DB
 class AppointmentInDBBase(AppointmentBase):
     id: int
     study_id: int
+    current_state: Optional[str] = None #no deberia ser opcional, pero para que no rompa mientras no actualice la db
 
     class Config:
         orm_mode = True

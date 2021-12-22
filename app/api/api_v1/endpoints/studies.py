@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 from app import crud, models, schemas
 from app.api import deps
 from app.constants.role import Role
-from app.constants.state import StudyState
+from app.constants.state import StudyState, AppointmentState
 from app.crud.exceptions import *
 from app.core.mail import conf
 from weasyprint import HTML
@@ -39,8 +39,9 @@ def read_studies(
         studies = crud.study.get_multi(
             db, skip=skip, limit=limit, state=StudyState.STATE_EIGHT)
     elif crud.user.is_patient(current_user):
-        studies = crud.study.get_multi(db, skip=skip, limit=limit, patient_id=current_user.id)
-    else: #employee
+        studies = crud.study.get_multi(
+            db, skip=skip, limit=limit, patient_id=current_user.id)
+    else:  # employee
         studies = crud.study.get_multi(db, skip=skip, limit=limit)
     return studies
 
@@ -75,7 +76,8 @@ def types_amount(
     """
     Retrieve amount of studies of each type.
     """
-    type_studies = ['Exoma', 'Genoma', 'Carrier', 'Cariotipo', 'Array CGH']
+    type_studies = ['Exoma', 'Genoma mitoclondrial completo',
+                    'Carrier', 'Cariotipo', 'Array CGH']
     l = []
     for study_type in type_studies:
         am = crud.study.get_type_amount(db, study_type=study_type)
@@ -189,9 +191,6 @@ def update_study(
     if not study:
         raise HTTPException(
             status_code=404, detail="No se encontró el estudio.")
-    if not crud.user.is_admin(current_user) and (study.employee_id != current_user.id):
-        raise HTTPException(
-            status_code=400, detail="No tiene permisos para la acción solicitada.")
     study = crud.study.update(db=db, db_obj=study, obj_in=study_in)
     return study
 
@@ -202,18 +201,27 @@ def read_study(
     db: Session = Depends(deps.get_db),
     current_user: models.User = Security(
         deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
+        scopes=[
+            Role.EMPLOYEE["name"],
+            Role.PATIENT["name"],
+            Role.REPORTING_PHYSICIAN["name"]]
     )
 ) -> Any:
     """
     Get study by ID.
     """
-    # TODO: permitir acceder a medico informante, pero asegurarse que el estudio
-    # estén en estado "Esperando interpretación de resultados e informes"
-    study = crud.study.get(db=db, id=id)
-    if not study:
-        raise HTTPException(
-            status_code=404, detail="No se encontró el estudio.")
+    study = retrieve_study(db=db, id=id)
+    if crud.user.is_patient(current_user):
+        if current_user.id != study.patient_id:
+            raise HTTPException(
+                status_code=403,
+                detail="El estudio no corresponde al paciente"
+            )
+    elif crud.user.is_reporting_physician(current_user):
+        if study.current_state != StudyState.STATE_EIGHT:
+            raise HTTPException(
+                status_code=403,
+                detail="No tiene permisos para ver el estudio en su estado actual")
     return study
 
 
@@ -248,16 +256,16 @@ async def payment_receipt(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=403,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     study.payment_receipt = file.filename
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_TWO, updated_by_id=current_user.id)
@@ -281,22 +289,6 @@ async def payment_receipt(
 #     return {"filename": study.payment_receipt}
 
 
-@router.get("/{id}/download-consent", response_class=Response)
-def download_consent(
-    id: int,
-    current_user: models.User = Security(
-        deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
-    ),
-    db: Session = Depends(deps.get_db)
-) -> Any:
-    study = retrieve_study(db, id)
-    type_study = crud.type_study.get(db, id=study.type_study_id)
-    pdf = HTML(string=type_study.study_consent_template,
-               encoding='UTF-8').write_pdf()
-    return Response(content=pdf, media_type="application/pdf")
-
-
 @router.post("/{id}/signed-consent")
 async def signed_consent(
     id: int,
@@ -311,16 +303,16 @@ async def signed_consent(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=403,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     study.signed_consent = file.filename
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_THREE, updated_by_id=current_user.id)
@@ -357,16 +349,16 @@ def register_appointment(
     if crud.user.is_patient(current_user):
         if current_user.id != study.patient_id:
             raise HTTPException(
-            status_code=400,
-            detail="El estudio no corresponde al paciente"
-        )
-    else: # employee
+                status_code=403,
+                detail="El estudio no corresponde al paciente"
+            )
+    else:  # employee
         config = crud.config.get_config(db)
         if config.obligated_mode == True:
             raise HTTPException(
-            status_code=400,
-            detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
-        )
+                status_code=400,
+                detail="El sistema está en modo obligado, sólo el paciente puede efectuar la acción."
+            )
     try:
         appointment = crud.appointment.create(
             db=db, study_id=study.id, obj_in=appointment_in)
@@ -400,33 +392,12 @@ def register_sample(
         )
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_FIVE, updated_by_id=current_user.id)
+    crud.appointment.update_state(
+        db=db, appointment=study.appointment, new_state=AppointmentState.STATE_ENDED)
     return sample
 
 
-# @router.post("/{id}/test-batch-generation", response_model=schemas.Sample)
-# def test-batch-generation(
-#     id: int,
-#     sample_in: schemas.SampleCreate,
-#     current_user: models.User = Security(
-#         deps.get_current_active_user,
-#         scopes=[Role.EMPLOYEE["name"]]
-#     ),
-#     db: Session = Depends(deps.get_db)
-# ) -> Any:
-#     study = retrieve_study(db, id, expected_state=None)
-#     try:
-#         sample = crud.sample.create(db=db, study_id=id, obj_in=sample_in)
-#     except StudyAlreadyWithSample:
-#         raise HTTPException(
-#             status_code=400,
-#             detail="El estudio ya registra una muestra"
-#         )
-#     crud.study.update_state(
-#         db=db, study=study, new_state=StudyState.STATE_SIX, updated_by_id=current_user.id)
-#     return sample
-
-
-@router.post("/{id}/register-sample-pickup")
+@router.post("/{id}/register-sample-pickup", response_model=schemas.Msg)
 def register_sample_pickup(
     id: int,
     picked_up_by: str = Body(...),
@@ -447,7 +418,7 @@ def register_sample_pickup(
         db=db, study=study, new_state=StudyState.STATE_SIX,
         updated_by_id=current_user.id, entry_date=sample.picked_up_date)
     # no informa si se creó un lote
-    return {"El retiro de la muestra fue registrado"}
+    return {"msg": "El retiro de la muestra fue registrado"}
 
 
 @router.post("/{id}/add-report", response_model=schemas.Report)
@@ -461,14 +432,15 @@ def add_report(
     db: Session = Depends(deps.get_db)
 ) -> Any:
     study = retrieve_study(db, id, expected_state=StudyState.STATE_EIGHT)
-    report = crud.report.create(db=db, study_id=study.id, obj_in=report_in)
+    report = crud.report.create(
+        db=db, study_id=study.id, physician_id=current_user.id, obj_in=report_in)
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_NINE,
         updated_by_id=current_user.id, entry_date=report.date_report)
     return report
 
 
-@router.post("/{id}/send-report")
+@router.post("/{id}/send-report", response_model=schemas.Msg)
 async def send_report(
     id: int,
     current_user: models.User = Security(
@@ -504,23 +476,7 @@ async def send_report(
     crud.study.update_state(
         db=db, study=study, new_state=StudyState.STATE_ENDED,
         updated_by_id=current_user.id)
-    return {"El reporte fue enviado exitosamente."}
-
-
-@router.get("/{id}/download-consent", response_class=Response)
-def download_consent(
-    id: int,
-    current_user: models.User = Security(
-        deps.get_current_active_user,
-        scopes=[Role.EMPLOYEE["name"]]
-    ),
-    db: Session = Depends(deps.get_db)
-) -> Any:
-    study = retrieve_study(db, id)
-    # TODO: en base al tipo de estudio, devolver el consentimiento
-    pdf = HTML(string='<h3>Consentimiento para estudio X</h3><p>En caracter de ...</p>',
-               encoding='UTF-8').write_pdf()
-    return Response(content=pdf, media_type="application/pdf")
+    return {"msg": "El reporte fue enviado exitosamente."}
 
 
 @router.get("/{id}/study-history", response_model=List[schemas.StudyState])

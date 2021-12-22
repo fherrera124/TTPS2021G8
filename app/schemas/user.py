@@ -40,6 +40,7 @@ class PatientBase(BaseModel):
     dni: Optional[int]
     birth_date: Optional[date]
     health_insurance_number: Optional[int]
+    health_insurance_id: Optional[int]
     clinical_history: Optional[str]
 
 
@@ -70,11 +71,9 @@ class PatientCreate(PatientBase):
     force_password_change: Optional[bool] = True
     address: str
     phone_number: str
-    password: str
     email: EmailStr
     dni: int
     birth_date: date
-    health_insurance_number: int
     clinical_history: str
 
     class Config:
@@ -83,6 +82,7 @@ class PatientCreate(PatientBase):
     def __init__(self, **data):
         super().__init__(**data)
         self.username = str(self.dni)
+        self.password = str(self.dni)
 
 # Properties to receive via API on update
 
@@ -104,7 +104,7 @@ class ReportingUpdate(ReportingBase):
 
 
 class PatientUpdate(PatientBase):
-    password: Optional[str] = None
+    force_password_change: Optional[bool] = True
 
 
 class UserInDBBase(UserBase):

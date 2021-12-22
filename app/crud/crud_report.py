@@ -6,10 +6,10 @@ from typing import Dict, Union, Any
 from app.crud.exceptions import StudyAlreadyWithReport
 
 
-
 class CRUDReport(CRUDBase[Report, ReportCreate, ReportUpdate]):
     def create(
-        self, db: Session, study_id: int, obj_in: Union[ReportCreate, Dict[str, Any]]
+        self, db: Session, study_id: int,
+        physician_id: int, obj_in: Union[ReportCreate, Dict[str, Any]]
     ) -> Report:
         if False:  # TODO: implementar
             raise StudyAlreadyWithReport()
@@ -17,7 +17,8 @@ class CRUDReport(CRUDBase[Report, ReportCreate, ReportUpdate]):
             create_data = obj_in
         else:
             create_data = obj_in.dict(exclude_unset=True)
-        db_obj = self.model(**create_data, study_id=study_id)
+        db_obj = self.model(**create_data, study_id=study_id,
+                            reporting_physician_id=physician_id)
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)

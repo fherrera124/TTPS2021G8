@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from datetime import datetime
+from typing import Optional
 
 
 # Shared properties
@@ -20,7 +21,7 @@ class ConfigurationUpdate(ConfigurationBase):
 # Properties shared by models stored in DB
 class ConfigurationInDBBase(ConfigurationBase):
     id: int
-    updated_date: datetime
+    updated_date: Optional[datetime] = None
 
     class Config:
         orm_mode = True
